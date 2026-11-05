@@ -52,7 +52,7 @@ The speaker notes on each slide are written to be read aloud. They add up to abo
 
 **For the demo slide,** either record your screen running `python demo/demo.py`, or show `results/figures/raster.mp4` and the interactive lab (`demo/index.html`).
 
-**A fallback:** `tools/make_video.py` makes a complete narrated draft with a computer voice. It's useful for checking pace, or if time runs out. Your own voices will score better on communication.
+**A fallback:** `tools/make_video.py` makes a complete narrated draft with a computer voice, 14:49 long, leaving out the backup slide. It's useful for checking pace, or if time runs out. Your own voices will score better on communication.
 
 **Submitting:** check the Submission tab on DeepStation, after signing in, to see whether it wants a file or a link. If it wants a link, an unlisted YouTube video or a Google Drive file set to "anyone with the link" both work. Test the link in a private window.
 
