@@ -30,7 +30,7 @@ Amplification has two slots, and a recurrent machine can fill either one:
 **This is not a new algorithm, and we will not claim it is.** A literature check found:
 - amplitude-amplified rejection sampling on Bayesian networks: Low, Yoder and Chuang, PRA 89, 062315 (2014);
 - discrete stochastic processes run in superposition, with amplitude estimation, on IBM hardware: Blank, Park and Petruccione, npj QI 7, 126 (2021);
-- superpositions of all future trajectories in a photonic experiment: Ghafari et al., Nat. Commun. 10, 1630 (2019);
+- superpositions of all future trajectories in a photonic experiment: Ghafari et al., Nat. Commun. 10 (2019), doi:10.1038/s41467-019-08951-2;
 - local or partial diffusion for shallower search: Zhang and Korepin, PRA 101, 032346 (2020).
 
 What we add: the mapping onto hidden quantum models (QRSM emitters and readers), the reset problem and its fix, the memory reflection below, and a hardware-honest evaluation.
@@ -167,3 +167,27 @@ So the goal shifts from "does it beat sampling on today's device?" to **"what ar
 **Scorecard:** 15 held, 5 partly, 5 missed, scored by calculation in `tools/build_docs.py`.
 
 **The horizon.** At a fixed rewind of 8 steps the hit rate is 0.83, 0.87, 0.87, 0.84, 0.80 at T = 10 to 18: a span of 0.06, a little over the 0.05 expected. Memory fidelity stays above 0.98. TVD grows from 0.06 to 0.15, since older history isn't reweighted.
+
+## Real hardware: predictions, logged before any device time was spent
+
+**Device.** ibm_kingston, chosen on 5 Nov 2026 at about 4:40 p.m. ET from the three devices the free plan offers, because today's calibration was the best: median two-qubit error 0.18% against 0.24% and 0.25%, T1 261 µs and T2 163 µs against 137 to 166 µs and 90 to 97 µs. Queues were not a factor, at 0 to 2 jobs on all three.
+
+**What runs.** The 39 rehearsed circuits and a readout calibration pair, at 4,096 shots, compiled at 5:01 p.m. and saved in `results/hardware/compiled_ibm_kingston.qpy`. Two jobs, the same circuits in both: plain, and with XY4 dynamical decoupling and Pauli twirling.
+
+**Where the numbers come from.** The noise model built from the device's own reported errors, on those exact compiled circuits (`results/hardware/raw_noisemodel_ibm_kingston.json`). It has gate errors, relaxation during gates and readout errors. It has no crosstalk and no decay on idle qubits, so the real device should fall short of it. Hit rates are readout-corrected.
+
+| # | Prediction | Noise model says |
+|---|---|---|
+| H1 | T = 3: steer + local beats textbook r = 3 on hit rate and TVD, in both jobs | 0.901 against 0.763; 0.039 against 0.094 |
+| H2 | T = 3: steer + local reaches a hit rate of at least 0.75 in either job | 0.901, from 0.05 for plain sampling |
+| H3 | No defect: at least 0.75 at r = 1, then back to 0.45 or less at r = 3, in either job. A rise and fall can't come from noise alone | 0.192, 0.886, 0.716, 0.236 |
+| H4 | The device falls short of its model: below it on at least 70% of circuits with ideal hit 0.5 or more, by a median of at least 0.02 | n/a |
+| H5 | DD + twirling lowers TVD on at least 60% of circuits with 100 or more two-qubit gates | n/a |
+| H6 | Defect against no defect at τ = 3: amplified separation at least 3 standard errors and above plain sampling, in either job | 6.2 against 1.6 |
+| H7 | Catalogue, r = 2: the right entry on top at 0.70 or more in either job | 0.863, from 0.125 |
+| H8 | T = 5: steer + local reaches at least 0.60 and beats the same steer with the textbook reflection, in either job | 0.882 against 0.815 |
+| H9 | Echo: the all-in error per two-qubit gate is above the reported 0.18% and at most 1%, on all three echoes | 0.22% to 0.25% |
+
+`score_predictions` in `experiments/analyse_hardware.py` scores these by calculation: held, partly or missed. It went into the same commit as this table, before the first job was sent.
+
+**A flaw in the first attempt.** The first version of this prediction gave Aer circuits sized for all 156 qubits of the device. It failed once, and the next try appears to have crashed the host computer. The prediction now cuts each circuit down to the qubits it touches and builds the noise model for those alone: 39 circuits in 15 seconds, about 3 GB.
