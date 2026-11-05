@@ -25,6 +25,16 @@ So we built this in four moves:
 | **3. Amplify locally** | one iteration, with a reflection on 3 qubits instead of all of them | far fewer gates, so far less noise |
 | **4. Verify** | the event is measured directly | a failed shot shows itself and is dropped |
 
+## The two circuits
+
+**One step of the hybrid QRSM.** The emitter and the defect are the memory, and they're never measured. The light is read and reset, so information leaves and the memory can forget.
+
+![One step of the hybrid QRSM as a circuit: drive, detune, exchange, emit, read and reset](results/figures/fig_circuit_hybrid.png)
+
+**Grover's algorithm.** A prepares every answer at once, and in our case A is the whole machine. Each iteration marks the matches, rewinds with A†, reflects, and replays. That A† is why a machine that resets can't be used directly. The resilient build keeps this shape, with one angle changed in A and a 3-qubit R₀.
+
+![The Grover circuit: A, then the oracle, A dagger, R zero and A, repeated r times, then measurement](results/figures/fig_circuit_grover.png)
+
 ## What we found
 
 @@RESULTS@@

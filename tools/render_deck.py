@@ -33,6 +33,9 @@ td,th{padding:.35em .6em;text-align:left;vertical-align:top;border-bottom:1px so
 </style>"""
 
 
+CIRCUITS = {"qrsmcircuit": ("fig_circuit_hybrid.png", 176, 562), "grovercircuit": ("fig_circuit_grover.png", 176, 558)}
+
+
 def slides() -> list:
     index = json.loads((DECK / "project" / "deck.json").read_text(encoding="utf-8"))
     assets = json.loads((DECK / "assets.json").read_text(encoding="utf-8"))
@@ -76,6 +79,11 @@ def main() -> None:
         png = OUT / f"slide_{i:02d}.png"
         page.get_pixmap(matrix=pymupdf.Matrix(1920 / page.rect.width, 1080 / page.rect.height)).save(png)
         print(f"  {png.name}: {s['id']}, {len(s['notes'].split())} words of notes", flush=True)
+        if s["id"] in CIRCUITS:  # the drawing alone, for the README and the report
+            name, top, height = CIRCUITS[s["id"]]
+            x, y = page.rect.width / 1920, page.rect.height / 1080
+            clip = pymupdf.Rect(124 * x, top * y, 1796 * x, (top + height) * y)
+            page.get_pixmap(matrix=pymupdf.Matrix(2 * 1920 / page.rect.width, 2 * 1080 / page.rect.height), clip=clip).save(ROOT / "results" / "figures" / name)
 
     from pptx import Presentation
     from pptx.util import Emu

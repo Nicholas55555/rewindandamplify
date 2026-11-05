@@ -20,6 +20,8 @@ The QRSM is the one from our [hidden-defect project](../prior_work/hidden_defect
 
 In the terms of our circuit diagrams it is the constrained hybrid, in emitter form: a fresh ancilla, the light, swaps partly with memory 1, the emitter, and is reset, and memory 2, the defect, never meets it. It is not the trainable hybrid or the free-unitary hybrid. Purifying it (section 2) defers the resets, so the circuit Grover runs on is fully coherent, which is what lifts the limit our Grover memory-access note put on hybrids.
 
+![One step of the hybrid QRSM as a circuit: drive, detune, exchange, emit, read and reset](../results/figures/fig_circuit_hybrid.png)
+
 As a model it is a hidden quantum Markov model (Monras, Beige and Wiesner). Its step has two Kraus operators, K_0 and K_1, and P(y) = ||K_{y_T} ... K_{y_1} |0>||^2.
 
 **Why condition at all?** Fitting to a recorded sequence, predicting the next click, and asking what follows a rare event are all conditional questions. On hardware, a generator answers them by rejection: keep the runs that match. That costs 1/p runs. Our own circuit diagrams note already flagged this as the wall.
@@ -45,6 +47,10 @@ By the deferred-measurement principle, swapping each reset for a fresh light can
 | A then A-inverse | returns to the start with probability 1.000000000000 | |
 
 ## 4. Grover on the histories (E2)
+
+One iteration is Q = A R₀ A† O. The oracle O flips the sign of matching histories, and for a click at one step it is a single Z gate. A† rewinds the machine, R₀ flips the sign of all zeros (X gates, a multi-controlled Z, X gates), and A replays it. So each iteration costs two machine calls.
+
+![The Grover circuit: A, then the oracle, A dagger, R zero and A, repeated r times, then measurement](../results/figures/fig_circuit_grover.png)
 
 With Qiskit's `grover_operator`, A as the state preparation and a phase oracle on the click register, on six questions at T = 6:
 

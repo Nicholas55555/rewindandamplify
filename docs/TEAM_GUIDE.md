@@ -33,16 +33,18 @@ This is a suggestion, so swap it around. Everyone speaking helps: the rubric ask
 
 | time | slides | suggested speaker |
 |---|---|---|
-| 0:00 | 1-4: the problem, the model, the wall | Nicholas |
-| 2:36 | 5-6: Grover in one minute, why it won't bolt on | Dan |
-| 4:04 | 7-8: purify, and it works | Nicholas |
-| 5:34 | 9-12: the resilient architecture and its results | Nicholas |
-| 8:45 | 13: the physics fingerprint | Nicholas or Tim |
-| 9:44 | 14-15: keyword search and the demo | Tim |
-| 11:17 | 16-18: real chips, what they taught us, honest limits | fourth teammate |
-| 14:00 | 19-20: potential, what we learned | fourth teammate, then all |
+| 0:00 | 1-5: the problem, the model and its circuit, the wall | Nicholas |
+| 3:11 | 6-8: Grover in one minute, its circuit, why it won't bolt on | Dan |
+| 5:17 | 9-10: purify, and it works | Nicholas |
+| 6:47 | 11-14: the resilient architecture and its results | Nicholas |
+| 9:58 | 15: the physics fingerprint | Nicholas or Tim |
+| 10:57 | 16-17: keyword search and the demo | Tim |
+| 12:30 | 18-20: real chips, what they taught us, honest limits | fourth teammate |
+| 15:13 | 21-22: potential, what we learned | fourth teammate, then all |
 
-The speaker notes on each slide are written to be read aloud. They add up to about 15.5 minutes at a relaxed 140 words a minute, or about 14.5 at a natural 150. The limit is 15, so keep a brisk pace and time one run-through. If you run long, cut slide 15 down to the raster clip, or skip the search demo.
+Slide 23 is a backup for questions: the QRSM family, and where ours sits. It isn't part of the talk.
+
+The speaker notes on each slide are written to be read aloud. They add up to about 16.7 minutes at a relaxed 140 words a minute, or about 15.7 at a natural 150, and the submission limit is 15. So time one run-through. The easiest cuts: slide 17 down to the raster clip, the search on slide 16, and the second half of the notes on slide 12.
 
 ## Recording the video
 

@@ -78,6 +78,8 @@ code { font-family: var(--mono); font-size: 0.92em }
     <div class="move"><b>3. Amplify locally</b><span>One iteration, with a reflection on 3 qubits at any record length.</span></div>
     <div class="move"><b>4. Verify</b><span>The event is measured, so a failed shot shows itself and is dropped.</span></div>
   </div>
+  <figure><img src="figs/fig_circuit_hybrid.png" alt="One step of the hybrid QRSM as a circuit: the defect and emitter are rotated, a partial swap joins them, a second partial swap passes energy to the light, and the light is read and reset"><figcaption>One step of the hybrid QRSM. The memory is never measured. The light is read and reset, so information leaves.</figcaption></figure>
+  <figure><img src="figs/fig_circuit_grover.png" alt="The Grover circuit: A prepares the state, then the oracle, A dagger, the reflection R zero and A again repeat r times, and the result is measured"><figcaption>Grover’s circuit. The A† is why a machine that resets can’t be used directly, and why move 1 comes first.</figcaption></figure>
 </section>
 
 <section class="stack">
