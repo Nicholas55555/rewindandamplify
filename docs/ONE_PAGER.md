@@ -1,5 +1,7 @@
 # Rewind & Amplify, on one page
 
+Code, results and raw hardware counts: https://github.com/Nicholas55555/rewindandamplify
+
 **FGCU Quantum Hackathon, IBM Qiskit Fall Fest, November 2026**
 
 ## The problem

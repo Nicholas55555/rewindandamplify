@@ -8,7 +8,7 @@ Everything you need to record the video and answer questions, in one place. You 
 - [ ] Each person fills in their own part on the last slide.
 - [x] Run the hardware job. Done on 5 November: seven jobs on two real IBM chips.
 - [ ] Record the video: 15 minutes or less. Aim for 14. Everyone speaks (section 2).
-- [ ] Publish the GitHub repository, and put its link on the last slide and in DeepStation.
+- [x] Publish the GitHub repository: https://github.com/Nicholas55555/rewindandamplify. It's on the last slide. Put it in DeepStation too.
 - [ ] On DeepStation, submit the video and the GitHub link. It's the only submission platform.
 - [ ] 1:30 p.m. Friday, SRHM 114: present at the ceremony. Certificates need both submitting and presenting.
 

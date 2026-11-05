@@ -17,6 +17,9 @@ test = ["pytest>=8.0"]
 [tool.setuptools]
 packages = ["qrsm_grover"]
 
+[project.urls]
+Repository = "https://github.com/Nicholas55555/rewindandamplify"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
