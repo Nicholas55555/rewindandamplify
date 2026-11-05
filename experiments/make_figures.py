@@ -463,7 +463,7 @@ def fig_hardware() -> None:
 def fig_hw_builds() -> None:
     """The real chip's answer to the same rare question, build by build."""
     c = comparison()
-    fig, axes = plt.subplots(1, 2, figsize=(15, 6.2), sharex=True)
+    fig, axes = plt.subplots(1, 2, figsize=(17.5, 6.2), sharex=True)
     for ax, question in zip(axes, ("T = 3", "T = 5")):
         rows = [r for r in c["hero"] if r["question"] == question]
         y = np.arange(len(rows), dtype=float)[::-1]

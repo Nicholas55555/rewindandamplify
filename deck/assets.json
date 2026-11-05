@@ -8,7 +8,6 @@
   "/_blob/f951442ec8e692eef931722fe93db617": "results/figures/fig_wall.png",
   "/_blob/7b0f04aa62406fbcf7cac338ce7a03d9": "results/figures/fig_catalog_cost.png",
   "/_blob/e5a3cf2c137de3be52a1fba7d506139c": "results/figures/fig_resilience.png",
-  "/_blob/5facebde39fb66f4c552a0b5e75a3218": "results/figures/fig_hw_builds.png",
   "/_blob/7bd401af382f829f4249ffe5580be00b": "results/figures/fig_hw_runs.png",
   "/_blob/10575994605f8a8fca53597d7896c2bc": "deck/diagrams/variant_coherent.png",
   "/_blob/de1ecc59c1e7a0779b1444bf3e5ecdeb": "deck/diagrams/variant_measured.png",
@@ -16,5 +15,6 @@
   "/_blob/ab2521e64575b3c58f7fa44699db4d49": "deck/diagrams/variant_free_unitary.png",
   "/_blob/09c2d872ee00d6b44bc6349fce754bed": "deck/diagrams/variant_heads.png",
   "/_blob/22d4c116c482881d35c4ff7bc721f27b": "deck/diagrams/variant_defects.png",
-  "/_blob/97e95791ff476407fa1ac2a12af0b757": "results/figures/fig_fingerprint.png"
+  "/_blob/97e95791ff476407fa1ac2a12af0b757": "results/figures/fig_fingerprint.png",
+  "/_blob/8e209c424d62d99be6578b083cc252fa": "results/figures/fig_hw_builds.png"
 }
