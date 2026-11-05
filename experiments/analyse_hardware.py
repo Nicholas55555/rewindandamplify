@@ -332,6 +332,18 @@ def score_followups(runs: dict, primary: str) -> list:
             "held" if all(wins) else "partly" if any(wins) else "missed")
         hit = other["t3_resilient"]["hit"]
         add("F5", "A second chip: steer + local reaches at least 0.70 at T = 3", f"{hit:.3f}", "held" if hit >= 0.7 else "partly" if hit >= 0.55 else "missed")
+    moved = runs.get("plain_marrakesh2")
+    if moved:
+        worst = max(moved["echo_error_per_gate"])
+        add("F6", "Off qubits 5, 6, 7, 8 and 17, the echo's all-in error per two-qubit gate on ibm_marrakesh falls below 1%, from 1.5% to 3.4%",
+            ", ".join(f"{g:.2%}" for g in moved["echo_error_per_gate"]), "held" if worst < 0.01 else "partly" if worst < 0.015 else "missed")
+        wins = [moved["t3_resilient"]["hit"] > moved["t3_textbook"]["hit"], moved["t3_resilient"]["tvd"] < moved["t3_textbook"]["tvd"],
+                moved["t5_resilient"]["hit"] > moved["t5_textbook"]["hit"], moved["t5_resilient"]["tvd"] < moved["t5_textbook"]["tvd"]]
+        tight = moved["t3_resilient"]["tvd"] <= 0.15
+        add("F7", "Off those qubits, steer + local beats its rival on hit rate and TVD at T = 3 and T = 5, with TVD at T = 3 of 0.15 or less",
+            f"T = 3: {moved['t3_resilient']['hit']:.3f} vs {moved['t3_textbook']['hit']:.3f}, TVD {moved['t3_resilient']['tvd']:.3f} vs {moved['t3_textbook']['tvd']:.3f}; "
+            f"T = 5: {moved['t5_resilient']['hit']:.3f} vs {moved['t5_textbook']['hit']:.3f}, TVD {moved['t5_resilient']['tvd']:.3f} vs {moved['t5_textbook']['tvd']:.3f}",
+            "held" if all(wins) and tight else "partly" if any(wins) else "missed")
     return out
 
 

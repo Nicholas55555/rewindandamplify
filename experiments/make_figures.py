@@ -518,6 +518,43 @@ def fig_hw_noise() -> None:
     done(fig, "fig_hw_noise")
 
 
+RUN_LABELS = {"plain": "Kingston, plain", "plain2": "Kingston, plain, repeat", "dd": "Kingston, DD alone", "twirl": "Kingston, twirling alone",
+              "suppressed": "Kingston, DD + twirling", "plain_marrakesh": "Marrakesh, plain", "plain_marrakesh2": "Marrakesh, off the bad qubits"}
+
+
+def fig_hw_runs() -> None:
+    """Every real job side by side: does the result repeat, and does it survive a second chip?"""
+    runs = comparison()["runs"]
+    order = [tag for tag in RUN_LABELS if tag in runs]
+    y = np.arange(len(order), dtype=float)[::-1]
+    fig, axes = plt.subplots(1, 3, figsize=(16.5, 5.6), sharey=True, gridspec_kw={"width_ratios": [1, 1, 0.9]})
+    for ax, resilient, rival, title, rival_label in ((axes[0], "t3_resilient", "t3_textbook", "T = 3 hit rate", "textbook Grover, r = 3"),
+                                                     (axes[1], "t5_resilient", "t5_textbook", "T = 5 hit rate", "same steer, textbook reflection")):
+        for yi, tag in zip(y, order):
+            a, b = runs[tag][rival]["hit"], runs[tag][resilient]["hit"]
+            ax.plot([a, b], [yi, yi], color=AXIS, lw=3, zorder=1)
+        ax.plot([runs[t][rival]["hit"] for t in order], y, "s", color=BLUE, ms=11, mec=SURFACE, mew=2, label=rival_label, zorder=2)
+        ax.plot([runs[t][resilient]["hit"] for t in order], y, "o", color=ORANGE, ms=12, mec=SURFACE, mew=2, label="steer + local", zorder=3)
+        ax.set_xlim(0.4, 1)
+        ax.set_title(title, loc="left", color=INK2, fontsize=16)
+        ax.set_xlabel("chance of the event")
+        ax.grid(axis="y", visible=False)
+        ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.09), ncol=1, fontsize=13)
+    signed = [runs[t]["after_click"]["separation"][2] * np.sign(runs[t]["after_click"]["signed_tau3"]) for t in order]
+    axes[2].axvline(0, color=AXIS, lw=2)
+    axes[2].axvline(3, color=MUTED, lw=1.6, ls=(0, (4, 3)))
+    axes[2].plot(signed, y, "o", color=VIOLET, ms=12, mec=SURFACE, mew=2)
+    for value, yi in zip(signed, y):
+        axes[2].text(value + 0.35, yi, f"{value:.1f}", va="center", fontsize=13, color=INK2)
+    axes[2].set_title("after-click separation, τ = 3", loc="left", color=INK2, fontsize=16)
+    axes[2].set_xlabel("standard errors, no defect above defect")
+    axes[2].grid(axis="y", visible=False)
+    axes[0].set_yticks(y)
+    axes[0].set_yticklabels([RUN_LABELS[t] for t in order])
+    fig.tight_layout()
+    done(fig, "fig_hw_runs")
+
+
 def fig_hw_after_click() -> None:
     """The physics question on the real chip: what follows a click, with and without a hidden defect."""
     c = comparison()
@@ -545,7 +582,7 @@ def main() -> None:
 
     for fn in (fig_curve, fig_conditional, fig_wall, fig_wall_prefix, fig_classical, fig_resilience, fig_steer_exact, fig_reflection_map,
                fig_device_trend, fig_horizon, fig_future, fig_fingerprint, fig_after_click, fig_catalog, fig_catalog_cost, fig_reader, fig_hardware, fig_hw_builds, fig_hw_noise,
-               fig_hw_after_click):
+               fig_hw_runs, fig_hw_after_click):
         try:
             fn()
         except FileNotFoundError as e:

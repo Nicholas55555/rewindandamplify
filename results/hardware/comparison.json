@@ -7,13 +7,13 @@
    "job_id": "dbmfqlt8ft8s738uplmg",
    "qpu_seconds": 47,
    "submitted": "2026-11-05 17:04:07",
-   "fetched": "2026-11-05 17:10:01"
+   "fetched": "2026-11-05 17:22:53"
   },
   "suppressed": {
    "job_id": "dbmfqme74qds73ds7ieg",
    "qpu_seconds": 50,
    "submitted": "2026-11-05 17:04:07",
-   "fetched": "2026-11-05 17:10:02"
+   "fetched": "2026-11-05 17:22:54"
   }
  },
  "calibration": {
@@ -1264,6 +1264,68 @@
   }
  ],
  "runs": {
+  "dd": {
+   "backend": "ibm_kingston",
+   "job_id": "dbmfv7d8ft8s738upseg",
+   "qpu_seconds": 47,
+   "t3_resilient": {
+    "hit": 0.8432422743616215,
+    "tvd": 0.07967016092709314,
+    "cz": 40
+   },
+   "t3_textbook": {
+    "hit": 0.6299605781865966,
+    "tvd": 0.2064032900609336,
+    "cz": 213
+   },
+   "t5_resilient": {
+    "hit": 0.7876386600185619,
+    "tvd": 0.1589175579439867,
+    "cz": 88
+   },
+   "t5_textbook": {
+    "hit": 0.6800203290359528,
+    "tvd": 0.2773634925048121,
+    "cz": 171
+   },
+   "no_defect_curve": [
+    0.2051777027176823,
+    0.8562653589866865,
+    0.7176658865248576,
+    0.44476799891195296
+   ],
+   "catalog_r2": 0.8260621363343327,
+   "echo_error_per_gate": [
+    0.007300351019947637,
+    0.006470632161022727,
+    0.006236585681548057
+   ],
+   "fidelity_slope": 0.0035192482000093524,
+   "median_tvd": 0.15731122306891016,
+   "after_click": {
+    "defect": [
+     0.0516000319708848,
+     0.08372602320192662,
+     0.1039607427703428
+    ],
+    "no_defect": [
+     0.04609503019584585,
+     0.07199560214061605,
+     0.105049813600442
+    ],
+    "separation": [
+     1.0589050143580614,
+     1.8142067571301008,
+     0.1479551631604256
+    ],
+    "plain_sampling_separation": [
+     1.6804176442312275,
+     0.27836638007891246,
+     1.5727732345096739
+    ],
+    "signed_tau3": 0.0010890708300991953
+   }
+  },
   "plain": {
    "backend": "ibm_kingston",
    "job_id": "dbmfqlt8ft8s738uplmg",
@@ -1324,6 +1386,130 @@
      0.03453519745412295
     ],
     "signed_tau3": 0.03729367791622845
+   }
+  },
+  "plain2": {
+   "backend": "ibm_kingston",
+   "job_id": "dbmfv758ft8s738upsdg",
+   "qpu_seconds": 47,
+   "t3_resilient": {
+    "hit": 0.8817561009358219,
+    "tvd": 0.05679522425553762,
+    "cz": 40
+   },
+   "t3_textbook": {
+    "hit": 0.5507597711571327,
+    "tvd": 0.2963083173548709,
+    "cz": 213
+   },
+   "t5_resilient": {
+    "hit": 0.7499662737887131,
+    "tvd": 0.14328484597414226,
+    "cz": 88
+   },
+   "t5_textbook": {
+    "hit": 0.6470081902310945,
+    "tvd": 0.4045608754069318,
+    "cz": 171
+   },
+   "no_defect_curve": [
+    0.2194269632240473,
+    0.8886479018168583,
+    0.7336603868246491,
+    0.5213628618644526
+   ],
+   "catalog_r2": 0.8464636388230629,
+   "echo_error_per_gate": [
+    0.006729615435261405,
+    0.00561878665229687,
+    0.004111320126634843
+   ],
+   "fidelity_slope": 0.004658053483595821,
+   "median_tvd": 0.13859655561573314,
+   "after_click": {
+    "defect": [
+     0.04977538565354783,
+     0.06461701830650189,
+     0.06084899487237467
+    ],
+    "no_defect": [
+     0.051002724306202715,
+     0.07060531942441874,
+     0.10479685352240808
+    ],
+    "separation": [
+     0.23656624805850085,
+     1.0064084834622098,
+     6.783687620402064
+    ],
+    "plain_sampling_separation": [
+     3.799592947184456,
+     2.5223159806351476,
+     1.8945038199712294
+    ],
+    "signed_tau3": 0.043947858650033415
+   }
+  },
+  "plain_marrakesh": {
+   "backend": "ibm_marrakesh",
+   "job_id": "dbmfvad8ft8s738upsjg",
+   "qpu_seconds": 48,
+   "t3_resilient": {
+    "hit": 0.8087301587301585,
+    "tvd": 0.3603930028120953,
+    "cz": 40
+   },
+   "t3_textbook": {
+    "hit": 0.37162162162162166,
+    "tvd": 0.6627656944715858,
+    "cz": 213
+   },
+   "t5_resilient": {
+    "hit": 0.5631119917036683,
+    "tvd": 0.5121193396940673,
+    "cz": 88
+   },
+   "t5_textbook": {
+    "hit": 0.5807054910219982,
+    "tvd": 0.6645979190413142,
+    "cz": 183
+   },
+   "no_defect_curve": [
+    0.21078980894943625,
+    0.7125335190144363,
+    0.7881166313668302,
+    0.6601663317337177
+   ],
+   "catalog_r2": 0.7047042622363381,
+   "echo_error_per_gate": [
+    0.014815593199309807,
+    0.020614031926295295,
+    0.033962322392659394
+   ],
+   "fidelity_slope": 0.007062433306830985,
+   "median_tvd": 0.3113778212151329,
+   "after_click": {
+    "defect": [
+     0.06261977677204955,
+     0.07712568819071375,
+     0.08532704093818914
+    ],
+    "no_defect": [
+     0.051386294008228604,
+     0.07079459270007661,
+     0.10540246720998005
+    ],
+    "separation": [
+     1.877744476917861,
+     0.9411914209381187,
+     2.6884904101456066
+    ],
+    "plain_sampling_separation": [
+     9.034149143620095,
+     3.4766246798099947,
+     0.34282123304190876
+    ],
+    "signed_tau3": 0.020075426271790903
    }
   },
   "suppressed": {
@@ -1387,7 +1573,100 @@
     ],
     "signed_tau3": -0.007743037864855543
    }
+  },
+  "twirl": {
+   "backend": "ibm_kingston",
+   "job_id": "dbmfv7e74qds73ds7ojg",
+   "qpu_seconds": 50,
+   "t3_resilient": {
+    "hit": 0.8411828733415644,
+    "tvd": 0.0732824318803833,
+    "cz": 40
+   },
+   "t3_textbook": {
+    "hit": 0.5675317796610171,
+    "tvd": 0.24738289932151297,
+    "cz": 213
+   },
+   "t5_resilient": {
+    "hit": 0.7537143157444517,
+    "tvd": 0.20973870086585208,
+    "cz": 88
+   },
+   "t5_textbook": {
+    "hit": 0.6106774304312464,
+    "tvd": 0.3794933126618347,
+    "cz": 171
+   },
+   "no_defect_curve": [
+    0.2103236734146224,
+    0.8488126242709233,
+    0.7428734931022092,
+    0.444819858108724
+   ],
+   "catalog_r2": 0.8287596825928085,
+   "echo_error_per_gate": [
+    0.006784361425577035,
+    0.005242068552795742,
+    0.005165647454188793
+   ],
+   "fidelity_slope": 0.004241732611548251,
+   "median_tvd": 0.16808894446853062,
+   "after_click": {
+    "defect": [
+     0.046948849893396684,
+     0.07612268817933915,
+     0.1107159522594819
+    ],
+    "no_defect": [
+     0.062159635997603754,
+     0.0860326795434026,
+     0.130514446153706
+    ],
+    "separation": [
+     2.8154085054593323,
+     1.5223722082459605,
+     2.5508827241089325
+    ],
+    "plain_sampling_separation": [
+     0.03881167682584523,
+     0.9131506545203144,
+     2.719983570360418
+    ],
+    "signed_tau3": 0.019798493894224098
+   }
   }
  },
- "followups": []
+ "followups": [
+  {
+   "id": "F1",
+   "prediction": "A second plain run repeats both T = 3 hit rates to within 0.05",
+   "measured": "resilient 0.874 then 0.882; textbook 0.589 then 0.551",
+   "verdict": "held"
+  },
+  {
+   "id": "F2",
+   "prediction": "The repeat again puts no defect above defect at tau = 3, by at least 3 standard errors",
+   "measured": "6.8 standard errors, the right way round",
+   "verdict": "held"
+  },
+  {
+   "id": "F3",
+   "prediction": "Twirling, not DD, is what erases the separation: DD alone keeps at least 3 standard errors, and twirling alone doesn't",
+   "measured": "DD alone 0.1, twirling alone 2.6",
+   "verdict": "missed"
+  },
+  {
+   "id": "F4",
+   "prediction": "A second chip: steer + local beats its rival on hit rate and TVD at T = 3 and T = 5, on ibm_marrakesh",
+   "measured": "T = 3: 0.809 vs 0.372, TVD 0.360 vs 0.663; T = 5: 0.563 vs 0.581, TVD 0.512 vs 0.665",
+   "verdict": "partly"
+  },
+  {
+   "id": "F5",
+   "prediction": "A second chip: steer + local reaches at least 0.70 at T = 3",
+   "measured": "0.809",
+   "verdict": "held"
+  }
+ ]
 }

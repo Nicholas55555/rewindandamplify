@@ -147,12 +147,29 @@ def estimated_success(isa: QuantumCircuit, backend) -> float:
     return float(np.exp(log_f))
 
 
-def compile_best(qc: QuantumCircuit, backend, seeds: int = 8, initial_layout=None) -> tuple[QuantumCircuit, dict]:
-    """Transpile at the highest level with several seeds, and keep the layout the device's own error rates favour."""
+def without_qubits(target, avoid: set):
+    """A copy of a device's target with some qubits taken out, so that the compiler can't use them."""
+    from qiskit.transpiler import Target
+
+    reduced = Target(num_qubits=target.num_qubits, dt=target.dt, qubit_properties=target.qubit_properties)
+    for name in target.operation_names:
+        operation, properties = target.operation_from_name(name), target[name]
+        if None in properties:  # a global instruction, such as control flow
+            reduced.add_instruction(operation, name=name)
+        else:
+            reduced.add_instruction(operation, {q: p for q, p in properties.items() if not avoid & set(q)}, name=name)
+    return reduced
+
+
+def compile_best(qc: QuantumCircuit, backend, seeds: int = 8, initial_layout=None, avoid=()) -> tuple[QuantumCircuit, dict]:
+    """Transpile at the highest level with several seeds, and keep the layout the device's own error rates favour.
+
+    `avoid` names physical qubits to stay off, for when a device's reported numbers can't be trusted on them.
+    """
+    device = {"target": without_qubits(backend.target, set(avoid))} if avoid else {"backend": backend}
     best = None
     for seed in range(seeds):
-        pm = generate_preset_pass_manager(optimization_level=3, backend=backend, seed_transpiler=seed,
-                                          initial_layout=initial_layout)
+        pm = generate_preset_pass_manager(optimization_level=3, seed_transpiler=seed, initial_layout=initial_layout, **device)
         isa = pm.run(qc)
         score = estimated_success(isa, backend)
         if best is None or score > best[0]:

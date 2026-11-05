@@ -210,3 +210,18 @@ So the goal shifts from "does it beat sampling on today's device?" to **"what ar
 
 `score_followups` in `experiments/analyse_hardware.py` scores these, and went into the same commit as this table.
 
+## Real hardware: what the follow-up showed, and one more prediction
+
+**The repeat agrees.** F1 and F2 held. Steer + local went from 0.874 to 0.882, and textbook from 0.589 to 0.551. The after-click separation repeated at 6.8 standard errors, with click rates at τ = 3 of 0.061 and 0.105, against 0.068 and 0.106 in the first run. So the plain jobs agree with each other, and the fingerprint is real in plain mode.
+
+**We were wrong about why suppression erased it.** F3 missed. DD alone takes the separation to 0.1 standard errors, and twirling alone leaves 2.6. Every suppressed job pushes the defect circuit's click rate at τ = 3 away from the exact 0.047, from 0.06 to 0.07 up to 0.10 to 0.13. One possible reason, untested: fresh light qubits wait in |0>, where plain idling does them no harm, while DD keeps pulsing them, and the defect circuit waits longest.
+
+**The second chip had a bad patch.** F4 came out partly, and F5 held, but the numbers are far from the model: TVD 0.36 where it said 0.05. Nearly all of the damage is on one cluster of qubits, 5, 6, 7, 8 and 17, which 31 of the 39 circuits used because the reported error rates made it look like the best on the chip. Echoes on that cluster show 1.5% to 3.4% error per two-qubit gate, against 0.24% reported. Circuits that landed elsewhere on the same chip look about like Kingston: 0.97 fidelity for the catalogue at r = 1 on qubits 53 to 55, against 0.99. The calibration data did not show this, and our echoes did. We don't know the cause.
+
+**One more job, to test that.** The same suite on ibm_marrakesh, compiled to stay off those five qubits. Choosing the qubits to avoid after seeing the data is a post-hoc step, so this job is reported as that: a test of the bad-patch explanation, and not a clean replication.
+
+| # | Prediction | Noise model says |
+|---|---|---|
+| F6 | Off qubits 5, 6, 7, 8 and 17, the echo's all-in error per two-qubit gate falls below 1%, from 1.5% to 3.4% | 0.27% to 0.29% |
+| F7 | Off those qubits, steer + local beats its rival on hit rate and TVD at T = 3 and T = 5, with TVD at T = 3 of 0.15 or less | hit 0.906 against 0.720, and 0.861 against 0.769; TVD 0.048 against 0.133, and 0.098 against 0.156 |
+

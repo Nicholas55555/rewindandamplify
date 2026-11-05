@@ -428,3 +428,19 @@ def test_a_simulation_can_state_its_readout_rates_directly():
     rates = experiment_module("analyse_hardware").device_flip_rates({"qubits": [4, 9], "flip_rates": [[0.01, 0.02], [0.03, 0.04]]})
     assert rates == {4: (0.01, 0.02), 9: (0.03, 0.04)}
 
+
+def test_the_compiler_stays_off_the_qubits_it_is_told_to_avoid():
+    from qiskit_ibm_runtime.fake_provider import FakeManilaV2
+
+    from qrsm_grover.hardware import compile_best
+
+    bell = QuantumCircuit(2)
+    bell.h(0)
+    bell.cx(0, 1)
+    bell.measure_all()
+    backend = FakeManilaV2()
+    isa, stats = compile_best(bell, backend, seeds=2, avoid=(0, 1))
+    touched = {isa.find_bit(q).index for inst in isa.data if inst.operation.name != "barrier" for q in inst.qubits}
+    assert touched and not touched & {0, 1}
+    assert stats["two_qubit_gates"] >= 1
+

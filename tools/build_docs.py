@@ -155,6 +155,37 @@ def results_block(n: dict) -> str:
 ![The resilient build against textbook Grover](results/figures/fig_resilience.png)"""
 
 
+RUN_NAMES = {"plain": "Kingston, plain", "plain2": "Kingston, plain, repeat", "dd": "Kingston, DD alone", "twirl": "Kingston, twirling alone",
+             "suppressed": "Kingston, DD + twirling", "plain_marrakesh": "Marrakesh, plain", "plain_marrakesh2": "Marrakesh, off the bad qubits"}
+
+
+def hw_hero_markdown(h: dict) -> str:
+    lines = ["| record | build | two-qubit gates | noiseless | noise model | real chip | real chip, DD + twirling | TVD, real chip | TVD, DD + twirling |",
+             "|---|---|---|---|---|---|---|---|---|"]
+    for r in h["hero"]:
+        bold = "**" if "resilient" in r["build"] else ""
+        lines.append(f"| {r['question']} | {bold}{r['build']}{bold} | {r['cz']} | {r['ideal_hit']:.3f} | {r['model']['hit']:.3f} | {bold}{r['plain']['hit']:.3f}{bold} | "
+                     f"{r['suppressed']['hit']:.3f} | {bold}{r['plain']['tvd']:.3f}{bold} | {r['suppressed']['tvd']:.3f} |")
+    return "\n".join(lines)
+
+
+def hw_runs_markdown(h: dict) -> str:
+    lines = ["| job | IBM job ID | device seconds | T = 3: steer + local | T = 3: textbook | T = 5: steer + local | T = 5: same steer, textbook reflection | after-click separation at τ = 3 |",
+             "|---|---|---|---|---|---|---|---|"]
+    for tag, name in RUN_NAMES.items():
+        if tag not in h["runs"]:
+            continue
+        r = h["runs"][tag]
+        z = r["after_click"]["separation"][2] * (1 if r["after_click"]["signed_tau3"] > 0 else -1)
+        cell = lambda key: f"{r[key]['hit']:.3f} (TVD {r[key]['tvd']:.3f})"  # noqa: E731
+        lines.append(f"| {name} | `{r['job_id']}` | {r['qpu_seconds']} | {cell('t3_resilient')} | {cell('t3_textbook')} | {cell('t5_resilient')} | {cell('t5_textbook')} | {z:+.1f} |")
+    return "\n".join(lines)
+
+
+def hw_scores(h: dict) -> list:
+    return [(f"{x['id']}: {x['prediction']}", x["measured"], x["verdict"]) for x in h["predictions"] + h["followups"]]
+
+
 def table_markdown(rows: list) -> str:
     lines = ["| prediction | outcome | verdict |", "|---|---|---|"]
     lines += [f"| {p} | {o} | {v} |" for p, o, v in rows]

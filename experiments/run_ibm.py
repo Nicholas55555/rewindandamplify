@@ -19,6 +19,8 @@ Two jobs are submitted by default, the same circuits in both, so that the effect
 --jobs picks others: dd and twirl run each half of the suppression alone. A job's name sets its mode by what comes before
 any digits or underscore, so plain2 repeats the plain job, and plain_marrakesh is a plain job with its own name.
 
+--avoid compiles away from named physical qubits, and --label keeps those circuits apart from the device's main plan.
+
 --submit reuses the exact circuits --plan compiled for that device, so a prediction and a job are always the same circuits.
 
 Everything can be rehearsed without an account. This runs the same code path on a local device snapshot:
@@ -60,13 +62,13 @@ def pick_backend(svc, name: str | None):
     return svc.least_busy(operational=True, simulator=False, min_num_qubits=20)
 
 
-def build(backend, quick: bool, seeds: int) -> tuple:
+def build(backend, quick: bool, seeds: int, avoid: tuple = ()) -> tuple:
     """Compile every experiment, and add one readout calibration pair covering every physical qubit they use."""
     experiments = suite(quick)
     compiled, info = [], []
     for i, exp in enumerate(experiments):
         t0 = time.time()
-        isa, stats = compile_best(exp.circuit, backend, seeds=seeds)
+        isa, stats = compile_best(exp.circuit, backend, seeds=seeds, avoid=avoid)
         compiled.append(isa)
         info.append({"name": exp.name, "meta": exp.meta, "logical_qubits": exp.circuit.num_qubits, **stats})
         print(f"  {i + 1:2d}/{len(experiments)} {exp.name:34s} {stats['two_qubit_gates']:3d} two-qubit gates, depth "
@@ -107,18 +109,18 @@ def plan_summary(backend, info: list, calibration: list) -> dict:
             "most_two_qubit_gates": max(x["two_qubit_gates"] for x in info), "time": time.strftime("%Y-%m-%d %H:%M:%S")}
 
 
-def save_compiled(backend, compiled: list, calibration: list) -> None:
+def save_compiled(name: str, compiled: list, calibration: list) -> None:
     from qiskit import qpy
 
-    with open(RESULTS / OUT / f"compiled_{backend.name}.qpy", "wb") as f:
+    with open(RESULTS / OUT / f"compiled_{name}.qpy", "wb") as f:
         qpy.dump(compiled + calibration, f)
 
 
-def load_compiled(backend, quick: bool) -> tuple | None:
+def load_compiled(backend, name: str, quick: bool) -> tuple | None:
     """The circuits --plan compiled for this device, if they match this run. Otherwise None, and they are compiled again."""
     from qiskit import qpy
 
-    plan_file, cache = RESULTS / OUT / f"plan_{backend.name}.json", RESULTS / OUT / f"compiled_{backend.name}.qpy"
+    plan_file, cache = RESULTS / OUT / f"plan_{name}.json", RESULTS / OUT / f"compiled_{name}.qpy"
     if not plan_file.exists() or not cache.exists():
         return None
     plan = json.loads(plan_file.read_text(encoding="utf-8"))
@@ -149,7 +151,7 @@ def compact(isa) -> tuple:
     return small, active
 
 
-def predict(backend, compiled: list, info: list, used: list) -> None:
+def predict(backend, name: str, compiled: list, info: list, used: list) -> None:
     """Simulate the compiled circuits with the device's own reported errors, one small circuit at a time.
 
     This is the noise model of `AerSimulator.from_backend`, restricted to the qubits each circuit touches. It holds gate
@@ -170,9 +172,9 @@ def predict(backend, compiled: list, info: list, used: list) -> None:
             raise ValueError(f"{item['name']} touches {len(active)} qubits; refusing to simulate more than {MAX_SIMULATED_QUBITS}")
         new = {physical: j for j, physical in enumerate(active)}
         noise = NoiseModel(basis_gates=["cz", "sx", "x", "rz", "id"])
-        for name, qubits, error in gate_errors:
+        for gate, qubits, error in gate_errors:
             if all(q in new for q in qubits):
-                noise.add_quantum_error(error, name, [new[q] for q in qubits], warnings=False)
+                noise.add_quantum_error(error, gate, [new[q] for q in qubits], warnings=False)
         for q, error in readout.items():
             if q in new:
                 noise.add_readout_error(error, [new[q]], warnings=False)
@@ -183,7 +185,7 @@ def predict(backend, compiled: list, info: list, used: list) -> None:
     flips = [[float(readout[q].probabilities[0][1]), float(readout[q].probabilities[1][0])] for q in used]
     save(OUT, {"meta": {"backend": backend.name, "mode": "local simulation with the device's own noise model, not real hardware",
                         "job_id": None, "suppression": "none", "shots": SHOTS, "time": time.strftime("%Y-%m-%d %H:%M:%S")},
-               "experiments": rows, "calibration": {"qubits": used, "flip_rates": flips}}, f"raw_noisemodel_{backend.name}.json")
+               "experiments": rows, "calibration": {"qubits": used, "flip_rates": flips}}, f"raw_noisemodel_{name}.json")
     print(f"noise-model prediction finished in {time.time() - t0:.0f} s", flush=True)
 
 
@@ -233,6 +235,8 @@ def main() -> None:
     ap.add_argument("--quick", action="store_true", help="only the first few circuits")
     ap.add_argument("--jobs", nargs="+", default=["plain", "suppressed"], help="which jobs to submit: plain, suppressed, dd, twirl")
     ap.add_argument("--seeds", type=int, default=8)
+    ap.add_argument("--avoid", type=int, nargs="*", default=[], help="physical qubits to keep off, with --plan")
+    ap.add_argument("--label", help="a name for this plan, so that it doesn't replace the device's main one")
     args = ap.parse_args()
     (RESULTS / OUT).mkdir(parents=True, exist_ok=True)
 
@@ -256,19 +260,20 @@ def main() -> None:
         names = [b.name for b in svc.backends(operational=True, simulator=False)]
         print(f"devices this account can use: {', '.join(names)}", flush=True)
         backend = pick_backend(svc, args.backend)
-        cached = None if args.plan else load_compiled(backend, args.quick)
+        name = f"{backend.name}_{args.label}" if args.label else backend.name
+        cached = None if args.plan else load_compiled(backend, name, args.quick)
         if cached:
-            print(f"reusing the circuits --plan compiled for {backend.name}", flush=True)
+            print(f"reusing the circuits --plan compiled as {name}", flush=True)
             compiled, info, calibration, used = cached
         else:
-            print(f"compiling for {backend.name}", flush=True)
-            compiled, info, calibration, used = build(backend, args.quick, args.seeds)
+            print(f"compiling for {name}", flush=True)
+            compiled, info, calibration, used = build(backend, args.quick, args.seeds, tuple(args.avoid))
             summary = plan_summary(backend, info, calibration)
             print(json.dumps(summary, indent=1), flush=True)
-            save(OUT, {**summary, "experiments": info, "calibrated_qubits": used}, f"plan_{backend.name}.json")
-            save_compiled(backend, compiled, calibration)
+            save(OUT, {**summary, "avoided_qubits": args.avoid, "experiments": info, "calibrated_qubits": used}, f"plan_{name}.json")
+            save_compiled(name, compiled, calibration)
         if args.predict:
-            predict(backend, compiled, info, used)
+            predict(backend, name, compiled, info, used)
         if args.submit:
             jobs = {}
             for tag in args.jobs:
