@@ -194,6 +194,8 @@ def main() -> None:
                     for w in (4, 6, 8, 10)},
     }
     numbers["devices"] = trend(device_quality(numbers["e7"]["devices"]))
+    if (RESULTS / "hardware" / "comparison.json").exists():
+        numbers["hardware"] = load("hardware", "comparison.json")
     save(".", numbers, "numbers.json")
     print(json.dumps(numbers, indent=1)[:6000])
 

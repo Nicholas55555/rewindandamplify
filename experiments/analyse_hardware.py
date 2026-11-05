@@ -279,6 +279,62 @@ def fidelity_decay(result: dict) -> dict:
             "points": [[int(a), float(np.exp(b))] for a, b in zip(x, y)]}
 
 
+def run_row(tag: str, result: dict) -> dict:
+    """One real job's key numbers."""
+    rows = by_name(result)
+    meta = result["meta"]
+    point = lambda name: {"hit": rows[name]["corrected"]["hit"], "tvd": rows[name]["corrected"]["tvd"], "cz": rows[name]["two_qubit_gates"]}  # noqa: E731
+    fp = fingerprint({tag: result}, int(meta["shots"]))[tag]
+    return {"backend": meta["backend"], "job_id": meta.get("job_id"), "qpu_seconds": meta.get("qpu_seconds"),
+            "t3_resilient": point("click3-steered-memory+last-1-r1"), "t3_textbook": point("click3-full-r3"),
+            "t5_resilient": point("click5-steered-memory+last-1-r1"), "t5_textbook": point("click5-steered-full-r1"),
+            "no_defect_curve": [rows[f"any3-nodefect-full-r{r}"]["corrected"]["hit"] for r in range(4)],
+            "catalog_r2": rows["catalog-r2"]["corrected"]["hit"],
+            "echo_error_per_gate": [float(1 - r["corrected"]["return"] ** (1 / r["two_qubit_gates"])) for r in result["rows"] if r["meta"]["kind"] == "echo"],
+            "fidelity_slope": fidelity_decay(result)["slope_per_gate"], "median_tvd": float(np.median([r["corrected"]["tvd"] for r in history_rows(result)])),
+            "after_click": {"defect": fp["amplified"]["defect"], "no_defect": fp["amplified"]["no_defect"],
+                            "separation": fp["amplified"]["separation"], "plain_sampling_separation": fp["plain"]["separation"],
+                            "signed_tau3": float(fp["amplified"]["no_defect"][2] - fp["amplified"]["defect"][2])}}
+
+
+def score_followups(runs: dict, primary: str) -> list:
+    """Score the follow-up predictions in docs/design_log.md, committed before the follow-up jobs were sent."""
+    if "plain2" not in runs:
+        return []
+    first, again = runs["plain"], runs["plain2"]
+    out = []
+
+    def add(key: str, text: str, measured: str, verdict: str) -> None:
+        out.append({"id": key, "prediction": text, "measured": measured, "verdict": verdict})
+
+    gaps = [abs(first[k]["hit"] - again[k]["hit"]) for k in ("t3_resilient", "t3_textbook")]
+    add("F1", "A second plain run repeats both T = 3 hit rates to within 0.05",
+        f"resilient {first['t3_resilient']['hit']:.3f} then {again['t3_resilient']['hit']:.3f}; textbook {first['t3_textbook']['hit']:.3f} then {again['t3_textbook']['hit']:.3f}",
+        "held" if max(gaps) <= 0.05 else "partly" if max(gaps) <= 0.1 else "missed")
+
+    z = again["after_click"]["separation"][2]
+    right_way = again["after_click"]["signed_tau3"] > 0
+    add("F2", "The repeat again puts no defect above defect at tau = 3, by at least 3 standard errors", f"{z:.1f} standard errors, {'the right way' if right_way else 'the wrong way'} round",
+        "held" if right_way and z >= 3 else "partly" if right_way and z >= 1 else "missed")
+
+    if "dd" in runs and "twirl" in runs:
+        zd, zt = (runs[k]["after_click"]["separation"][2] * (1 if runs[k]["after_click"]["signed_tau3"] > 0 else -1) for k in ("dd", "twirl"))
+        add("F3", "Twirling, not DD, is what erases the separation: DD alone keeps at least 3 standard errors, and twirling alone doesn't",
+            f"DD alone {zd:.1f}, twirling alone {zt:.1f}", "held" if zd >= 3 > zt else "partly" if zd > zt else "missed")
+
+    other = next((r for r in runs.values() if r["backend"] != primary), None)
+    if other:
+        wins = [other["t3_resilient"]["hit"] > other["t3_textbook"]["hit"], other["t3_resilient"]["tvd"] < other["t3_textbook"]["tvd"],
+                other["t5_resilient"]["hit"] > other["t5_textbook"]["hit"], other["t5_resilient"]["tvd"] < other["t5_textbook"]["tvd"]]
+        add("F4", f"A second chip: steer + local beats its rival on hit rate and TVD at T = 3 and T = 5, on {other['backend']}",
+            f"T = 3: {other['t3_resilient']['hit']:.3f} vs {other['t3_textbook']['hit']:.3f}, TVD {other['t3_resilient']['tvd']:.3f} vs {other['t3_textbook']['tvd']:.3f}; "
+            f"T = 5: {other['t5_resilient']['hit']:.3f} vs {other['t5_textbook']['hit']:.3f}, TVD {other['t5_resilient']['tvd']:.3f} vs {other['t5_textbook']['tvd']:.3f}",
+            "held" if all(wins) else "partly" if any(wins) else "missed")
+        hit = other["t3_resilient"]["hit"]
+        add("F5", "A second chip: steer + local reaches at least 0.70 at T = 3", f"{hit:.3f}", "held" if hit >= 0.7 else "partly" if hit >= 0.55 else "missed")
+    return out
+
+
 def score_predictions(c: dict) -> list:
     """Score the predictions in docs/design_log.md. They and this function were committed before the first job was sent."""
     jobs = [t for t in ("plain", "suppressed") if t in c["jobs"]]
@@ -347,7 +403,7 @@ def compare(analysed: dict) -> dict | None:
     backend = meta["backend"]
     sources = {"model": analysed[f"noisemodel_{backend}"], **{t: analysed[t] for t in device_tags}}
     shots = int(meta["shots"])
-    plan = json.loads((RESULTS / OUT / "plan.json").read_text(encoding="utf-8"))
+    plan = json.loads((RESULTS / OUT / f"plan_{backend}.json").read_text(encoding="utf-8"))
     out = {"backend": backend, "shots": shots, "circuits": len(analysed[device_tags[0]]["rows"]),
            "jobs": {t: {"job_id": analysed[t]["meta"].get("job_id"), "qpu_seconds": analysed[t]["meta"].get("qpu_seconds"),
                         "submitted": analysed[t]["meta"].get("submitted"), "fetched": analysed[t]["meta"].get("fetched")} for t in device_tags},
@@ -355,6 +411,7 @@ def compare(analysed: dict) -> dict | None:
            "fingerprint": fingerprint(sources, shots), "catalog": catalog_table(sources),
            "echo": echo_table(sources, (plan.get("calibration") or {}).get("median_two_qubit_error")),
            "decay": {t: fidelity_decay(r) for t, r in sources.items()},
+           "scatter": {t: [row["corrected"]["hit"] for row in history_rows(r)] for t, r in sources.items()},
            "model_gap": {t: model_gap(sources["model"], analysed[t]) for t in device_tags}}
     if len(device_tags) == 2:
         out["suppression"] = against(analysed["plain"], analysed["suppressed"])
@@ -366,6 +423,8 @@ def compare(analysed: dict) -> dict | None:
                       "median_hit_error_corrected": float(np.median([err("corrected", r) for r in rows]))}
     out["readout_correction"] = readout
     out["predictions"] = score_predictions(out)
+    out["runs"] = {tag: run_row(tag, result) for tag, result in analysed.items() if result["meta"].get("mode") == "real IBM Quantum hardware"}
+    out["followups"] = score_followups(out["runs"], backend)
     return out
 
 

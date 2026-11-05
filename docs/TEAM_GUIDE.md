@@ -96,9 +96,10 @@ Run more on real hardware, extend steering to learned models, add error detectio
 
 1. In a terminal in this folder, run `python tools/save_ibm_account.py` and paste your API key at the hidden prompt. Your key is stored by Qiskit in your home folder, never in this repository.
 2. `python experiments/run_ibm.py --plan` picks a device, compiles everything and estimates QPU time. It uses no QPU time.
-3. `python experiments/run_ibm.py --submit` sends two jobs: one plain, one with dynamical decoupling and twirling.
-4. `python experiments/run_ibm.py --fetch` waits and saves the results. IBM's queue can take minutes or hours.
-5. `python experiments/analyse_hardware.py`, then `python experiments/make_figures.py`, make the tables and the chart.
+3. `python experiments/run_ibm.py --predict` simulates those exact circuits with the device's noise model, one small circuit at a time. It uses no QPU time. Never give a simulator a circuit compiled for the whole device: that appears to have crashed a laptop.
+4. `python experiments/run_ibm.py --submit` sends two jobs: one plain, one with dynamical decoupling and twirling.
+5. `python experiments/run_ibm.py --fetch` waits and saves the results. IBM's queue can take minutes or hours.
+6. `python experiments/analyse_hardware.py`, then `python experiments/make_figures.py`, make the tables and the charts.
 
 Then update the hardware slide with the real numbers and job IDs. Real hardware is worth up to 8 bonus points, and showing the job IDs matters.
 

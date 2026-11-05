@@ -191,3 +191,22 @@ So the goal shifts from "does it beat sampling on today's device?" to **"what ar
 `score_predictions` in `experiments/analyse_hardware.py` scores these by calculation: held, partly or missed. It went into the same commit as this table, before the first job was sent.
 
 **A flaw in the first attempt.** The first version of this prediction gave Aer circuits sized for all 156 qubits of the device. It failed once, and the next try appears to have crashed the host computer. The prediction now cuts each circuit down to the qubits it touches and builds the noise model for those alone: 39 circuits in 15 seconds, about 3 GB.
+
+## Real hardware: the first run, and what we logged before the follow-up
+
+**First run.** Jobs `dbmfqlt8ft8s738uplmg` (plain) and `dbmfqme74qds73ds7ieg` (DD + twirling) on ibm_kingston, 5 Nov 2026, 47 s and 50 s of device time. Scored by calculation: 7 held, 2 partly, 0 missed. At T = 3, steer + local hit the event 0.874 and 0.831 of the time on 40 two-qubit gates, against 0.589 and 0.620 for textbook Grover on 213.
+
+**A result we don't trust yet.** H6 scored "held" only because it says "in either job". On the same circuits, the plain job separates defect from no defect at τ = 3 by 5.7 standard errors, and the suppressed job by 1.0. Shot noise can't explain that: the defect circuit's click rate at τ = 3 is 0.068 in one job and 0.127 in the other, about 8 standard errors apart. And at τ = 1 and 2, the plain job doesn't follow the exact ordering. So the first run does not show that the chip can see the fingerprint.
+
+**The follow-up.** Four more jobs of the same 39 circuits, about 195 s of the 503 s left: a plain repeat on Kingston with the same compiled circuits, DD alone, twirling alone, and a plain job on ibm_marrakesh, a second chip with worse numbers (median two-qubit error 0.24%, T2 90 µs).
+
+| # | Prediction | Noise model says |
+|---|---|---|
+| F1 | A second plain run repeats both T = 3 hit rates to within 0.05 | n/a |
+| F2 | The repeat again puts no defect above defect at τ = 3, by at least 3 standard errors. We expect this to be the weakest of the five | n/a |
+| F3 | Twirling, not DD, is what erases the separation: DD alone keeps at least 3 standard errors, and twirling alone doesn't | n/a |
+| F4 | On ibm_marrakesh, steer + local beats its rival on hit rate and TVD at T = 3 and T = 5. The rival is textbook r = 3 at T = 3, and the same steer with the textbook reflection at T = 5 | hit 0.907 against 0.699, and 0.878 against 0.761; TVD 0.052 against 0.141, and 0.121 against 0.160 |
+| F5 | On ibm_marrakesh, steer + local reaches at least 0.70 at T = 3 | 0.907 |
+
+`score_followups` in `experiments/analyse_hardware.py` scores these, and went into the same commit as this table.
+

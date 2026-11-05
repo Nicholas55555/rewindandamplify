@@ -430,47 +430,122 @@ def fig_catalog_cost() -> None:
 # ---------------------------------------------------------------------------- hardware
 
 
-def textbook_series(data: dict, group: str) -> list:
-    """One group's unsteered full-reflection circuits, in order of r."""
-    rows = [r for r in data["rows"] if r["meta"].get("group") == group and r["meta"].get("reflection") == "full" and not r["meta"].get("steer")]
-    return sorted(rows, key=lambda r: r["meta"]["r"])
+BUILD_COLOUR = {"plain sampling": GREY, "textbook Grover, r = 3": BLUE, "local reflection, r = 3": AQUA,
+                "steer + textbook reflection": VIOLET, "steer + local (resilient)": ORANGE}
+
+
+def comparison() -> dict:
+    return json.load(open(RESULTS / "hardware" / "comparison.json", encoding="utf-8"))
 
 
 def fig_hardware() -> None:
-    """Hit rate against r: the noiseless answer, a device snapshot, and the real device, when it has run."""
-    files = {f.split("summary_")[-1][:-5]: json.load(open(f, encoding="utf-8")) for f in glob.glob(str(RESULTS / "hardware" / "summary_*.json"))}
-    if not files:
-        print("  skipped fig_hardware: no hardware summary yet")
-        return
-    sources = []
-    for tag, colour, label in (("plain", ORANGE, "real device, no suppression"), ("suppressed", VIOLET, "real device, DD + twirling")):
-        if tag in files:
-            sources.append((files[tag], colour, label))
-    for tag, data in files.items():
-        if tag.startswith("dryrun"):
-            sources.append((data, MUTED, f"noisy simulator ({data['meta']['backend']})"))
+    """Textbook Grover's hit rate against r: noiseless, the device's noise model, and the real device."""
+    c = comparison()
     fig, axes = plt.subplots(1, 2, figsize=(13.5, 5.4), sharey=True)
-    for ax, group, title in ((axes[0], "any3-nodefect", "no defect, any click"), (axes[1], "click3", "one defect, click at step 3 (textbook)")):
-        base = sources[0][0]
-        rows = textbook_series(base, group)
-        ax.plot([r["meta"]["r"] for r in rows], [r["raw"]["ideal_hit"] for r in rows], color=INK, lw=2, label="noiseless")
-        for data, colour, label in sources:
-            rows = textbook_series(data, group)
-            ax.plot([r["meta"]["r"] for r in rows], [r["corrected"]["hit"] for r in rows], "o-", color=colour, ms=9, mec=SURFACE, mew=2, label=label)
+    r = np.arange(4)
+    for ax, (title, curve) in zip(axes, c["curves"].items()):
+        ax.plot(r, curve["ideal"], color=INK, lw=2, label="noiseless")
+        ax.plot(r, curve["model"], "s--", color=MUTED, ms=8, mec=SURFACE, mew=2, label="noise model")
+        ax.plot(r, curve["plain"], "o-", color=VIOLET, ms=10, mec=SURFACE, mew=2, label="real device")
+        if "suppressed" in curve:
+            ax.plot(r, curve["suppressed"], "D-", color=YELLOW, ms=9, mec=SURFACE, mew=2, label="real device, DD + twirling")
         ax.set_title(title, loc="left", color=INK2, fontsize=16)
         ax.set_xlabel("Grover iterations r")
-        ax.set_xticks([0, 1, 2, 3])
+        ax.set_xticks(r)
+        ax.grid(axis="x", visible=False)
     axes[0].set_ylabel("chance of the event")
     axes[0].set_ylim(0, 1.05)
-    axes[1].legend(loc="lower right")
+    fig.legend(*axes[0].get_legend_handles_labels(), loc="upper center", ncol=4, bbox_to_anchor=(0.5, 1.07))
+    fig.tight_layout()
     done(fig, "fig_hardware")
+
+
+def fig_hw_builds() -> None:
+    """The real chip's answer to the same rare question, build by build."""
+    c = comparison()
+    fig, axes = plt.subplots(1, 2, figsize=(15, 6.2), sharex=True)
+    for ax, question in zip(axes, ("T = 3", "T = 5")):
+        rows = [r for r in c["hero"] if r["question"] == question]
+        y = np.arange(len(rows), dtype=float)[::-1]
+        for yi, row in zip(y, rows):
+            colour = BUILD_COLOUR[row["build"]]
+            ax.barh(yi + 0.19, row["plain"]["hit"], height=0.34, color=colour, edgecolor=SURFACE, linewidth=2)
+            ax.barh(yi - 0.19, row["suppressed"]["hit"], height=0.34, color=colour, alpha=0.45, edgecolor=SURFACE, linewidth=2)
+            for dy, value, ink in ((0.19, row["plain"]["hit"], "white"), (-0.19, row["suppressed"]["hit"], INK)):
+                if value > 0.2:  # inside the bar, clear of the markers near its end
+                    ax.text(value - 0.012, yi + dy, f"{value:.2f}", va="center", ha="right", fontsize=13, color=ink, fontweight="semibold")
+                else:
+                    ax.text(value + 0.03, yi + dy, f"{value:.2f}", va="center", ha="left", fontsize=13, color=INK2)
+            ax.plot([row["ideal_hit"]] * 2, [yi - 0.42, yi + 0.42], color=INK, lw=2.4, solid_capstyle="butt", zorder=4)
+            ax.plot(row["model"]["hit"], yi, "D", color=SURFACE, mec=INK, mew=1.8, ms=9, zorder=5)
+        ax.set_yticks(y)
+        ax.set_yticklabels([f"{r['build']}\n{r['cz']} two-qubit gates" for r in rows], fontsize=14)
+        ax.set_title(f"a click at the last of {question.split()[-1]} steps", loc="left", color=INK2, fontsize=16)
+        ax.set_xlabel("chance of the event")
+        ax.set_xlim(0, 1.08)
+        ax.grid(axis="y", visible=False)
+    handles = [plt.Rectangle((0, 0), 1, 1, color=INK2), plt.Rectangle((0, 0), 1, 1, color=INK2, alpha=0.45),
+               plt.Line2D([], [], marker="D", color=SURFACE, mec=INK, mew=1.8, ms=9, lw=0), plt.Line2D([], [], color=INK, lw=2.4)]
+    fig.legend(handles, ["real device", "real device, DD + twirling", "noise model", "noiseless"], loc="upper center", ncol=4, bbox_to_anchor=(0.5, 1.06))
+    fig.tight_layout()
+    done(fig, "fig_hw_builds")
+
+
+def fig_hw_noise() -> None:
+    """Noise analysis: what depth costs on the chip, and how well the device's own noise model predicts it."""
+    c = comparison()
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5.6))
+    series = (("model", "s", MUTED, "noise model"), ("plain", "o", VIOLET, "real device"), ("suppressed", "D", YELLOW, "real device, DD + twirling"))
+    for tag, marker, colour, label in series:
+        if tag not in c["decay"]:
+            continue
+        points = np.array(c["decay"][tag]["points"])
+        axes[0].plot(points[:, 0], points[:, 1], marker, color=colour, ms=9, mec=SURFACE, mew=1.5, lw=0, label=label)
+    axes[0].set_xlabel("two-qubit gates in the circuit")
+    axes[0].set_ylabel("fidelity with the noiseless answer")
+    axes[0].set_ylim(0, 1.03)
+    rows = c["scatter"]
+    axes[1].plot([0, 1], [0, 1], color=AXIS, lw=2)
+    axes[1].plot(rows["model"], rows["plain"], "o", color=VIOLET, ms=9, mec=SURFACE, mew=1.5, lw=0)
+    if "suppressed" in rows:
+        axes[1].plot(rows["model"], rows["suppressed"], "D", color=YELLOW, ms=8, mec=SURFACE, mew=1.5, lw=0)
+    axes[1].set_xlabel("chance of the event, predicted by the noise model")
+    axes[1].set_ylabel("chance of the event, real device")
+    axes[1].set_xlim(0, 1)
+    axes[1].set_ylim(0, 1)
+    fig.legend(*axes[0].get_legend_handles_labels(), loc="upper center", ncol=3, bbox_to_anchor=(0.5, 1.07))
+    fig.tight_layout()
+    done(fig, "fig_hw_noise")
+
+
+def fig_hw_after_click() -> None:
+    """The physics question on the real chip: what follows a click, with and without a hidden defect."""
+    c = comparison()
+    fingerprint = c["fingerprint"]["suppressed" if "suppressed" in c["fingerprint"] else "plain"]
+    fig, axes = plt.subplots(1, 2, figsize=(13, 5.2), sharey=True)
+    tau = np.arange(1, 4)
+    for ax, key, exact_key, shots, title in ((axes[0], "defect", "exact_defect", "shots_defect", "one defect"),
+                                             (axes[1], "no_defect", "exact_no_defect", "shots_no_defect", "no defect")):
+        ax.plot(tau, fingerprint["amplified"][exact_key], "_", color=INK, ms=34, mew=2.6, label="exact")
+        for label, name, colour, off in (("plain sampling", "plain", GREY, -0.1), ("steer + local, r = 1", "amplified", ORANGE, 0.1)):
+            values = np.array(fingerprint[name][key])
+            se = np.sqrt(values * (1 - values) / max(fingerprint[name][shots], 1))
+            ax.errorbar(tau + off, values, yerr=se, fmt="o", color=colour, ms=9, mec=SURFACE, mew=2, capsize=0, lw=2, label=label)
+        ax.set_xticks(tau)
+        ax.set_xlabel("steps after the click (τ)")
+        ax.set_title(title, loc="left", fontsize=16, color=INK2)
+    axes[0].set_ylabel("P(click at t + τ | click at t)")
+    fig.legend(*axes[0].get_legend_handles_labels(), loc="upper center", ncol=3, bbox_to_anchor=(0.5, 1.08))
+    fig.tight_layout()
+    done(fig, "fig_hw_after_click")
 
 
 def main() -> None:
     from qiskit import __version__  # noqa: F401  (the figures need the package importable)
 
     for fn in (fig_curve, fig_conditional, fig_wall, fig_wall_prefix, fig_classical, fig_resilience, fig_steer_exact, fig_reflection_map,
-               fig_device_trend, fig_horizon, fig_future, fig_fingerprint, fig_after_click, fig_catalog, fig_catalog_cost, fig_reader, fig_hardware):
+               fig_device_trend, fig_horizon, fig_future, fig_fingerprint, fig_after_click, fig_catalog, fig_catalog_cost, fig_reader, fig_hardware, fig_hw_builds, fig_hw_noise,
+               fig_hw_after_click):
         try:
             fn()
         except FileNotFoundError as e:

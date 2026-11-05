@@ -12,9 +12,12 @@ Then:
     python experiments/run_ibm.py --fetch           wait for the jobs and save the raw counts
     python experiments/analyse_hardware.py          turn the counts into tables and figures
 
-Two jobs are submitted, the same circuits in both, so that the effect of error suppression can be measured:
+Two jobs are submitted by default, the same circuits in both, so that the effect of error suppression can be measured:
     plain        no suppression at all
     suppressed   dynamical decoupling (XY4) and Pauli twirling of gates and measurements
+
+--jobs picks others: dd and twirl run each half of the suppression alone. A job's name sets its mode by what comes before
+any digits or underscore, so plain2 repeats the plain job, and plain_marrakesh is a plain job with its own name.
 
 --submit reuses the exact circuits --plan compiled for that device, so a prediction and a job are always the same circuits.
 
@@ -25,6 +28,7 @@ Everything can be rehearsed without an account. This runs the same code path on 
 
 import argparse
 import json
+import re
 import time
 
 from common import RESULTS, save
@@ -114,7 +118,7 @@ def load_compiled(backend, quick: bool) -> tuple | None:
     """The circuits --plan compiled for this device, if they match this run. Otherwise None, and they are compiled again."""
     from qiskit import qpy
 
-    plan_file, cache = RESULTS / OUT / "plan.json", RESULTS / OUT / f"compiled_{backend.name}.qpy"
+    plan_file, cache = RESULTS / OUT / f"plan_{backend.name}.json", RESULTS / OUT / f"compiled_{backend.name}.qpy"
     if not plan_file.exists() or not cache.exists():
         return None
     plan = json.loads(plan_file.read_text(encoding="utf-8"))
@@ -183,13 +187,17 @@ def predict(backend, compiled: list, info: list, used: list) -> None:
     print(f"noise-model prediction finished in {time.time() - t0:.0f} s", flush=True)
 
 
-def sampler_for(mode, suppressed: bool):
+def sampler_for(mode, job: str = "plain"):
     from qiskit_ibm_runtime import SamplerV2
 
+    kind = re.sub(r"\d+$", "", job.split("_")[0])
+    if kind not in ("plain", "suppressed", "dd", "twirl"):
+        raise ValueError(f"unknown job kind {kind!r}")
     sampler = SamplerV2(mode=mode)
-    if suppressed:
+    if kind in ("suppressed", "dd"):
         sampler.options.dynamical_decoupling.enable = True
         sampler.options.dynamical_decoupling.sequence_type = "XY4"
+    if kind in ("suppressed", "twirl"):
         sampler.options.twirling.enable_gates = True
         sampler.options.twirling.enable_measure = True
         sampler.options.twirling.num_randomizations = 32
@@ -223,7 +231,7 @@ def main() -> None:
     ap.add_argument("--dry-run", metavar="FAKE_BACKEND", help="run everything locally on a device snapshot")
     ap.add_argument("--backend", help="a device name; default: the least busy one")
     ap.add_argument("--quick", action="store_true", help="only the first few circuits")
-    ap.add_argument("--plain-only", action="store_true", help="submit only the job without error suppression")
+    ap.add_argument("--jobs", nargs="+", default=["plain", "suppressed"], help="which jobs to submit: plain, suppressed, dd, twirl")
     ap.add_argument("--seeds", type=int, default=8)
     args = ap.parse_args()
     (RESULTS / OUT).mkdir(parents=True, exist_ok=True)
@@ -235,7 +243,7 @@ def main() -> None:
         compiled, info, calibration, used = build(backend, args.quick, args.seeds)
         print(json.dumps(plan_summary(backend, info, calibration), indent=1), flush=True)
         t0 = time.time()
-        job = sampler_for(backend, False).run(pubs_for(compiled, calibration))
+        job = sampler_for(backend).run(pubs_for(compiled, calibration))
         result = job.result()
         save_raw(f"dryrun_{args.dry_run}", info, used, len(compiled), result,
                  {"backend": backend.name, "mode": "local dry run on a device snapshot, not real hardware", "job_id": None,
@@ -257,37 +265,32 @@ def main() -> None:
             compiled, info, calibration, used = build(backend, args.quick, args.seeds)
             summary = plan_summary(backend, info, calibration)
             print(json.dumps(summary, indent=1), flush=True)
-            save(OUT, {**summary, "experiments": info, "calibrated_qubits": used}, "plan.json")
+            save(OUT, {**summary, "experiments": info, "calibrated_qubits": used}, f"plan_{backend.name}.json")
             save_compiled(backend, compiled, calibration)
         if args.predict:
             predict(backend, compiled, info, used)
         if args.submit:
             jobs = {}
-            for tag, suppressed in (("plain", False), ("suppressed", True)):
-                if suppressed and args.plain_only:
-                    continue
-                job = sampler_for(backend, suppressed).run(pubs_for(compiled, calibration))
+            for tag in args.jobs:
+                job = sampler_for(backend, tag).run(pubs_for(compiled, calibration))
                 jobs[tag] = job.job_id()
                 print(f"submitted {tag}: job {job.job_id()} on {backend.name}", flush=True)
             save(OUT, {"backend": backend.name, "jobs": jobs, "submitted": time.strftime("%Y-%m-%d %H:%M:%S"),
-                       "experiments": info, "calibrated_qubits": used, "shots": SHOTS}, "jobs.json")
+                       "experiments": info, "calibrated_qubits": used, "shots": SHOTS}, f"jobs_{'_'.join(args.jobs)}.json")
     if args.fetch:
-        info_file = json.loads((RESULTS / OUT / "jobs.json").read_text(encoding="utf-8"))
-        info, used = info_file["experiments"], info_file["calibrated_qubits"]
-        for tag, job_id in info_file["jobs"].items():
-            job = svc.job(job_id)
-            print(f"{tag}: job {job_id} is {job.status()}", flush=True)
-            result = job.result()  # waits for the job
-            usage = None
-            try:
-                usage = job.usage()
-            except Exception:  # not every plan reports it
-                pass
-            save_raw(tag, info, used, len(info), result,
-                     {"backend": info_file["backend"], "mode": "real IBM Quantum hardware", "job_id": job_id,
-                      "suppression": tag, "shots": info_file["shots"], "qpu_seconds": usage,
-                      "submitted": info_file["submitted"], "fetched": time.strftime("%Y-%m-%d %H:%M:%S")})
-            print(f"{tag}: saved. QPU time used: {usage} s", flush=True)
+        for path in sorted((RESULTS / OUT).glob("jobs_*.json")):
+            info_file = json.loads(path.read_text(encoding="utf-8"))
+            info, used = info_file["experiments"], info_file["calibrated_qubits"]
+            for tag, job_id in info_file["jobs"].items():
+                job = svc.job(job_id)
+                print(f"{tag}: job {job_id} is {job.status()}", flush=True)
+                result = job.result()  # waits for the job
+                usage = job.metrics().get("usage", {}).get("qpu_charge_time_seconds")  # job.usage() can read 0 on this plan
+                save_raw(tag, info, used, len(info), result,
+                         {"backend": info_file["backend"], "mode": "real IBM Quantum hardware", "job_id": job_id,
+                          "suppression": tag, "shots": info_file["shots"], "qpu_seconds": usage,
+                          "submitted": info_file["submitted"], "fetched": time.strftime("%Y-%m-%d %H:%M:%S")})
+                print(f"{tag}: saved. QPU time used: {usage} s", flush=True)
 
 
 if __name__ == "__main__":

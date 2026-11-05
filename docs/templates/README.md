@@ -79,7 +79,8 @@ To run it on your own IBM Quantum account:
 ```bash
 python tools/save_ibm_account.py          # your key goes in at a hidden prompt, and stays in ~/.qiskit
 python experiments/run_ibm.py --plan      # compiles everything and estimates QPU time; uses none
-python experiments/run_ibm.py --submit    # about 1 minute of QPU time per job, by our estimate
+python experiments/run_ibm.py --predict   # simulates those exact circuits with the device's noise model; uses none
+python experiments/run_ibm.py --submit    # sends both jobs
 python experiments/run_ibm.py --fetch
 python experiments/analyse_hardware.py
 python experiments/make_figures.py

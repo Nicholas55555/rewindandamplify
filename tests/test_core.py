@@ -390,3 +390,41 @@ def test_the_page_builds_the_same_step_as_the_package(gamma):
                     for ei in range(2):
                         V[row, li * 4:li * 4 + 4] += E[lo * 2 + eo, li * 2 + ei] * W[d * 2 + ei]
     assert np.abs(V - step_unitary(M1, gamma).reshape(8, 8)).max() < 1e-12
+
+
+# ------------------------------------------------------------------ the hardware pipeline
+
+
+def experiment_module(name: str):
+    import importlib
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).parents[1] / "experiments"))
+    return importlib.import_module(name)
+
+
+def test_compact_hands_a_simulator_only_the_qubits_a_circuit_touches():
+    """A circuit compiled for a device names all 156 qubits, and simulating that can take down a laptop."""
+    wide = QuantumCircuit(156, 2)
+    wide.h(151)
+    wide.cx(151, 7)
+    wide.barrier()
+    wide.measure([7, 151], [0, 1])
+    small, active = experiment_module("run_ibm").compact(wide)
+    assert active == [7, 151]
+    assert small.num_qubits == 2
+    counts = AerSimulator(method="statevector", seed_simulator=1).run(small, shots=2000).result().get_counts()
+    assert set(counts) == {"00", "11"}
+
+
+def test_readout_rates_come_from_the_calibration_circuits():
+    """Bit i of each count belongs to the i-th calibrated qubit: one qubit misreads 0, the other misreads 1."""
+    rates = experiment_module("analyse_hardware").device_flip_rates(
+        {"qubits": [4, 9], "counts": [{"00": 90, "01": 10}, {"11": 80, "01": 20}]})
+    assert rates == {4: (0.1, 0.0), 9: (0.0, 0.2)}
+
+
+def test_a_simulation_can_state_its_readout_rates_directly():
+    rates = experiment_module("analyse_hardware").device_flip_rates({"qubits": [4, 9], "flip_rates": [[0.01, 0.02], [0.03, 0.04]]})
+    assert rates == {4: (0.01, 0.02), 9: (0.03, 0.04)}
+
