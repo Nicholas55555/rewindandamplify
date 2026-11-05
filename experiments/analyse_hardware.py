@@ -427,6 +427,7 @@ def compare(analysed: dict) -> dict | None:
            "model_gap": {t: model_gap(sources["model"], analysed[t]) for t in device_tags}}
     if len(device_tags) == 2:
         out["suppression"] = against(analysed["plain"], analysed["suppressed"])
+    out["by_mode"] = {tag: against(analysed["plain"], analysed[tag]) for tag in ("plain2", "dd", "twirl", "suppressed") if tag in analysed}
     readout = {}
     for t in device_tags:
         rows = history_rows(analysed[t])

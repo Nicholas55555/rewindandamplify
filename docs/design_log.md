@@ -216,7 +216,7 @@ So the goal shifts from "does it beat sampling on today's device?" to **"what ar
 
 **We were wrong about why suppression erased it.** F3 missed. DD alone takes the separation to 0.1 standard errors, and twirling alone leaves 2.6. Every suppressed job pushes the defect circuit's click rate at τ = 3 away from the exact 0.047, from 0.06 to 0.07 up to 0.10 to 0.13. One possible reason, untested: fresh light qubits wait in |0>, where plain idling does them no harm, while DD keeps pulsing them, and the defect circuit waits longest.
 
-**The second chip had a bad patch.** F4 came out partly, and F5 held, but the numbers are far from the model: TVD 0.36 where it said 0.05. Nearly all of the damage is on one cluster of qubits, 5, 6, 7, 8 and 17, which 31 of the 39 circuits used because the reported error rates made it look like the best on the chip. Echoes on that cluster show 1.5% to 3.4% error per two-qubit gate, against 0.24% reported. Circuits that landed elsewhere on the same chip look about like Kingston: 0.97 fidelity for the catalogue at r = 1 on qubits 53 to 55, against 0.99. The calibration data did not show this, and our echoes did. We don't know the cause.
+**The second chip had a bad patch.** F4 came out partly, and F5 held, but the numbers are far from the model: TVD 0.36 where it said 0.05. Nearly all of the damage is on one cluster of qubits, 5, 6, 7, 8 and 17, which 31 of the 39 circuits used because the reported error rates made it look like the best on the chip. Echoes on that cluster show 1.5% to 3.4% error per two-qubit gate, against a reported chip median of 0.24%. Circuits that landed elsewhere on the same chip look about like Kingston: 0.97 fidelity for the catalogue at r = 1 on qubits 53 to 55, against 0.99. The calibration data did not show this, and our echoes did. We don't know the cause.
 
 **One more job, to test that.** The same suite on ibm_marrakesh, compiled to stay off those five qubits. Choosing the qubits to avoid after seeing the data is a post-hoc step, so this job is reported as that: a test of the bad-patch explanation, and not a clean replication.
 
@@ -224,4 +224,14 @@ So the goal shifts from "does it beat sampling on today's device?" to **"what ar
 |---|---|---|
 | F6 | Off qubits 5, 6, 7, 8 and 17, the echo's all-in error per two-qubit gate falls below 1%, from 1.5% to 3.4% | 0.27% to 0.29% |
 | F7 | Off those qubits, steer + local beats its rival on hit rate and TVD at T = 3 and T = 5, with TVD at T = 3 of 0.15 or less | hit 0.906 against 0.720, and 0.861 against 0.769; TVD 0.048 against 0.133, and 0.098 against 0.156 |
+
+## Real hardware: how it ended
+
+**F6 and F7 held.** Off qubits 5, 6, 7, 8 and 17, Marrakesh's echoes fell to 0.73% to 0.92% per gate. Steer + local won all four comparisons: 0.815 (TVD 0.115) against 0.513 (TVD 0.291) at T = 3, and 0.679 (TVD 0.207) against 0.536 (TVD 0.538) at T = 5. The after-click separation came through there too, at 6.6 standard errors. We didn't predict that one.
+
+**The whole hardware scorecard:** 12 held, 3 partly, 1 missed, over 16 predictions. Seven jobs, 337 of the 600 seconds on the free plan.
+
+**A check on our own reading.** The first draft said suppression improved some share of circuits. But two identical plain jobs differ, circuit by circuit, about as much: the plain repeat "improved" TVD on 48% of circuits, and the suppressed jobs on 45% to 48%. So those shares are noise, and the report no longer leans on them. What survives is small: median fidelity on deep circuits rose from 0.50 to between 0.53 and 0.55.
+
+**What this changes.** Verify now has a second meaning. The design measures the event to catch failed shots, and a short echo on a layout, before trusting it, would have caught the bad patch for almost nothing. We haven't built that as a step.
 

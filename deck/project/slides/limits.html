@@ -7,7 +7,8 @@
 <tr><td>Steering is quantum</td><td>It is classical importance sampling. Exact only for clicks at known steps, and it needs a rough value of p.</td></tr>
 <tr><td>Local reflection is exact</td><td>It is an approximation. Steered, its hit rate falls to 0.73 at T = 14, where the exact build stays at 1.0.</td></tr>
 <tr><td>A new algorithm</td><td>Amplified rejection sampling is known (Low, Yoder &amp; Chuang 2014). Ours is the mapping onto hidden quantum models, and the resilience work.</td></tr>
+<tr><td>Hardware at scale</td><td>Seven jobs on two chips in one evening: at most 11 qubits and 5 steps. At 5 steps the distribution error is still 0.14 to 0.21.</td></tr>
 </table>
-<p style="position:absolute;right:128px;bottom:56px;width:100px;text-align:right;font-size:24px;color:#6A7282">17</p>
-<aside>We want to be straight about the limits. No speedup today: a classical sampler gives an exact answer in about a millisecond. We rewind a model of the chip, never the chip, because a physical defect can’t run backwards. Steering is classical, and exact only for clicks at known steps. The local reflection is an approximation that drifts on long records. And the core idea isn’t new: amplified rejection sampling was published in 2014. What’s ours is applying it to hidden quantum models, and the design work to make it survive noise.</aside>
+<p style="position:absolute;right:128px;bottom:56px;width:100px;text-align:right;font-size:24px;color:#6A7282">18</p>
+<aside>We want to be straight about the limits. No speedup today: a classical sampler gives an exact answer in about a millisecond. We rewind a model of the chip, never the chip, because a physical defect can’t run backwards. Steering is classical, and exact only for clicks at known steps. The local reflection is an approximation that drifts on long records. Our hardware runs are small: at most 11 qubits and 5 steps. And the core idea isn’t new: amplified rejection sampling was published in 2014. What’s ours is applying it to hidden quantum models, and the design work to make it survive noise.</aside>
 </section>

@@ -149,6 +149,7 @@ def results_block(n: dict) -> str:
 | **Grover conditions exactly** | real Qiskit circuits follow theory within {sci(max(n['e2'].values()))}, and conditional distributions and hidden states stay exact |
 | **The wall falls** | one real 64-step record: {w['rejection_runs']:,.0f} runs, {w['steered_runs']:,.0f} steered, {w['steered_calls']:.0f} calls with Grover on top. Steering gives about {round(w['steering_gain'], -2):,.0f} times of that, Grover about {w['grover_gain_after_steering']:.0f} |
 | **Resilient beats textbook under noise** | on five IBM device snapshots: {e7['gate_ratio']['min']:.0f} to {e7['gate_ratio']['max']:.0f} times fewer two-qubit gates, a chance of the event of {mean_over_T(n, 'steered+local', 'hit_median'):.2f} against {mean_over_T(n, 'textbook', 'hit_median'):.2f}, and distribution error {mean_over_T(n, 'steered+local', 'tvd_median'):.2f} against {mean_over_T(n, 'textbook', 'tvd_median'):.2f} |
+| **It held up on real IBM chips** | on ibm_kingston, steer + local hit a rare event {n['hardware']['runs']['plain']['t3_resilient']['hit']:.2f} of the time on 40 two-qubit gates, against {n['hardware']['runs']['plain']['t3_textbook']['hit']:.2f} for textbook Grover on 213, and won all 20 comparisons across five jobs. [Details](#real-hardware) |
 | **It answers a physics question** | what follows a rare click tells a hidden defect from none. At 4,096 noisy shots the separation goes from {sep['plain']['mean_by_tau'][2]:.1f} to {sep['amplified']['mean_by_tau'][2]:.1f} standard errors |
 | **A QRSM can be the oracle too** | a reader QRSM found the right table for {round(n['e6']['quantum_top1'] * n['e6']['requests'])} of {n['e6']['requests']} vague requests. There is no speedup: 1,024 entries take {n['e6_cost_at_1024']['total_cz']:,} gates against a 1,024-step scan |
 
@@ -184,6 +185,69 @@ def hw_runs_markdown(h: dict) -> str:
 
 def hw_scores(h: dict) -> list:
     return [(f"{x['id']}: {x['prediction']}", x["measured"], x["verdict"]) for x in h["predictions"] + h["followups"]]
+
+
+def spread(rows: list, key: str, field: str) -> str:
+    values = [r[key][field] for r in rows]
+    return f"{min(values):.2f} to {max(values):.2f}"
+
+
+def separation(run: dict) -> float:
+    """After-click separation at tau = 3, positive when no defect is above defect, as the exact answer has it."""
+    return run["after_click"]["separation"][2] * (1 if run["after_click"]["signed_tau3"] > 0 else -1)
+
+
+def hw_values(h: dict) -> dict:
+    runs = h["runs"]
+    kingston = [r for r in runs.values() if r["backend"] == h["backend"]]
+    first, again, dd, twirl, both = (runs[t] for t in ("plain", "plain2", "dd", "twirl", "suppressed"))
+    bad, moved = runs["plain_marrakesh"], runs["plain_marrakesh2"]
+    wins = sum((r["t3_resilient"]["hit"] > r["t3_textbook"]["hit"]) + (r["t3_resilient"]["tvd"] < r["t3_textbook"]["tvd"])
+               + (r["t5_resilient"]["hit"] > r["t5_textbook"]["hit"]) + (r["t5_resilient"]["tvd"] < r["t5_textbook"]["tvd"]) for r in kingston)
+    hero = {r["name"]: r for r in h["hero"]}
+    resilient, textbook = hero["click3-steered-memory+last-1-r1"], hero["click3-full-r3"]
+    score = hw_scores(h)
+    tally = {v: sum(1 for x in score if x[2] == v) for v in ("held", "partly", "missed")}
+    echo = [g for r in kingston for g in r["echo_error_per_gate"]]
+    model_echo = [e["error_per_gate"] for e in h["echo"]["model"]]
+    curve = h["curves"]["no defect, any click"]
+    modes = h["by_mode"]
+    shares = [modes[t]["all"]["tvd_improved"] for t in ("dd", "twirl", "suppressed")]
+    deep = [modes[t]["deep"]["median_fidelity"][1] for t in ("dd", "twirl", "suppressed")]
+    slopes = [r["fidelity_slope"] for r in (dd, twirl, both)]
+    best_book = max(kingston, key=lambda r: r["t3_textbook"]["hit"])
+    gap = h["model_gap"]["plain"]
+    cal = h["calibration"]
+    cell = lambda r, key: f"{r[key]['hit']:.2f} (TVD {r[key]['tvd']:.2f})"  # noqa: E731
+    return {
+        "HWJOBS": {7: "seven"}.get(len(runs), str(len(runs))), "HWSECONDS": sum(r["qpu_seconds"] for r in runs.values()), "HWWINS": f"{wins} of {4 * len(kingston)}",
+        "HWCZ": f"{cal['median_two_qubit_error']:.2%}", "HWT1": f"{cal['median_t1_us']:.0f}", "HWT2": f"{cal['median_t2_us']:.0f}",
+        "HWHEROTABLE": hw_hero_markdown(h), "HWRUNSTABLE": hw_runs_markdown(h),
+        "HWT3R": spread(kingston, "t3_resilient", "hit"), "HWT3B": spread(kingston, "t3_textbook", "hit"),
+        "HWT3RT": spread(kingston, "t3_resilient", "tvd"), "HWT3BT": spread(kingston, "t3_textbook", "tvd"),
+        "HWT5R": spread(kingston, "t5_resilient", "hit"), "HWT5B": spread(kingston, "t5_textbook", "hit"),
+        "HWT5RT": spread(kingston, "t5_resilient", "tvd"), "HWT5BT": spread(kingston, "t5_textbook", "tvd"),
+        "HWFIRSTR": f"{first['t3_resilient']['hit']:.2f}", "HWFIRSTB": f"{first['t3_textbook']['hit']:.2f}",
+        "HWFIRSTRT": f"{first['t3_resilient']['tvd']:.2f}", "HWFIRSTBT": f"{first['t3_textbook']['tvd']:.2f}",
+        "HWAGAINR": f"{again['t3_resilient']['hit']:.2f}", "HWAGAINB": f"{again['t3_textbook']['hit']:.2f}",
+        "HWLEADREAL": f"{first['t3_resilient']['hit'] - first['t3_textbook']['hit']:.2f}", "HWLEADMODEL": f"{resilient['model']['hit'] - textbook['model']['hit']:.2f}",
+        "HWBESTBOOK": f"{best_book['t3_textbook']['hit']:.2f}",
+        "HWCURVE": ", ".join(f"{v:.2f}" for v in curve["plain"]), "HWCURVEIDEAL": ", ".join(f"{v:.2f}" for v in curve["ideal"]),
+        "HWSLOPE": f"{first['fidelity_slope']:.2%}", "HWSLOPEMODEL": f"{h['decay']['model']['slope_per_gate']:.2%}", "HWSLOPEMODES": f"{min(slopes):.2%} to {max(slopes):.2%}",
+        "HWECHO": f"{min(echo):.2%} to {max(echo):.2%}", "HWECHOMODEL": f"{min(model_echo):.2%} to {max(model_echo):.2%}",
+        "HWBELOW": f"{gap['share_below_model']:.0%}", "HWRANK": f"{gap['rank_correlation']:.2f}",
+        "HWTVDAGAIN": f"{modes['plain2']['all']['tvd_improved']:.0%}", "HWTVDMODES": f"{min(shares):.0%} to {max(shares):.0%}",
+        "HWDEEPPLAIN": f"{modes['dd']['deep']['median_fidelity'][0]:.2f}", "HWDEEP": f"{min(deep):.2f} to {max(deep):.2f}",
+        "HWBADT3": cell(bad, "t3_resilient"), "HWBADT3B": cell(bad, "t3_textbook"), "HWBADT5": cell(bad, "t5_resilient"), "HWBADT5B": cell(bad, "t5_textbook"),
+        "HWBADECHO": f"{min(bad['echo_error_per_gate']):.1%} to {max(bad['echo_error_per_gate']):.1%}",
+        "HWMOVEDT3": cell(moved, "t3_resilient"), "HWMOVEDT3B": cell(moved, "t3_textbook"), "HWMOVEDT5": cell(moved, "t5_resilient"), "HWMOVEDT5B": cell(moved, "t5_textbook"),
+        "HWMOVEDECHO": f"{min(moved['echo_error_per_gate']):.1%} to {max(moved['echo_error_per_gate']):.1%}",
+        "HWZFIRST": f"{separation(first):.1f}", "HWZAGAIN": f"{separation(again):.1f}", "HWZMOVED": f"{separation(moved):.1f}",
+        "HWZDD": f"{separation(dd):.1f}", "HWZTWIRL": f"{separation(twirl):.1f}", "HWZBOTH": f"{separation(both):.1f}",
+        "HWZPLAIN": ", ".join(f"{r['after_click']['plain_sampling_separation'][2]:.1f}" for r in (first, again, moved)),
+        "HWCAT": f"{min(r['catalog_r2'] for r in kingston):.2f} to {max(r['catalog_r2'] for r in kingston):.2f}",
+        "HWSCORE": table_markdown(score), "HWTALLY": f"{tally['held']} held, {tally['partly']} partly, {tally['missed']} missed",
+    }
 
 
 def table_markdown(rows: list) -> str:
@@ -245,13 +309,15 @@ def main() -> None:
         "LEADWORST": f"{max(n['devices'].values(), key=lambda v: v['two_qubit_error'])['resilient_hit'] - max(n['devices'].values(), key=lambda v: v['two_qubit_error'])['textbook_hit']:.2f}",
         "LEADBEST": f"{min(n['devices'].values(), key=lambda v: v['two_qubit_error'])['resilient_hit'] - min(n['devices'].values(), key=lambda v: v['two_qubit_error'])['textbook_hit']:.2f}",
     }
+    hardware = hw_values(n["hardware"])
+    values.update(hardware)
     (DOCS / "REPORT.md").write_text(fill((TEMPLATES / "REPORT.md").read_text(encoding="utf-8"), values), encoding="utf-8")
     (ROOT / "README.md").write_text(fill((TEMPLATES / "README.md").read_text(encoding="utf-8"), values), encoding="utf-8")
 
     page = {
         "GAIN": f"{round(w['total_gain'], -4):,.0f}×", "GATES": f"{e7['gate_ratio']['min']:.0f} to {e7['gate_ratio']['max']:.0f}×", "SEP": f"{sep['plain']['mean_by_tau'][2]:.1f}σ → {sep['amplified']['mean_by_tau'][2]:.1f}σ",
         "AMP": sci(n["e1"]["worst_amplitude_error"]).replace("10^", "10<sup>") + "</sup>", "CURVE": sci(n["e2"]["error"]).replace("10^", "10<sup>") + "</sup>",
-        "HEROROWS": hero_html(n), "SCORE": table_html(score),
+        "HEROROWS": hero_html(n), "SCORE": table_html(score), "HWSCOREROWS": table_html(hw_scores(n["hardware"])), **hardware,
         "AFTER": f"Telling a defect from none at τ = 3 goes from {sep['plain']['mean_by_tau'][2]:.1f} to {sep['amplified']['mean_by_tau'][2]:.1f} standard errors, averaged over five snapshots.",
     }
     html = fill((TEMPLATES / "report_page.html").read_text(encoding="utf-8"), page)

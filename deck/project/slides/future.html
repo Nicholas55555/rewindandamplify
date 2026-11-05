@@ -5,10 +5,10 @@
 <div style="flex:1;display:flex;flex-direction:column;gap:26px">
 <div style="display:flex;flex-direction:column;gap:6px"><h3 style="font-size:30px;font-weight:600;color:#B5431A">A 66× smaller job</h3><p style="font-size:27px;line-height:1.3;color:#3B4658">Conditioning on a 64-step record: 2.7 million gates as textbook, 40,000 once steered.</p></div>
 <div style="display:flex;flex-direction:column;gap:6px"><h3 style="font-size:30px;font-weight:600;color:#B5431A">Where classical runs out</h3><p style="font-size:27px;line-height:1.3;color:#3B4658">IBM’s 2029 target, 200 logical qubits and 100 million gates, would fit 50 hidden qubits and 150 steps. That memory alone is about 18 PB classically.</p></div>
-<div style="display:flex;flex-direction:column;gap:6px"><h3 style="font-size:30px;font-weight:600;color:#B5431A">Next</h3><p style="font-size:27px;line-height:1.3;color:#3B4658">Steering for learned models, error detection, and rewinding only the memory’s horizon: 8 steps held hit rate 0.80 to 0.87 out to T = 18.</p></div>
+<div style="display:flex;flex-direction:column;gap:6px"><h3 style="font-size:30px;font-weight:600;color:#B5431A">Next</h3><p style="font-size:27px;line-height:1.3;color:#3B4658">Steering for learned models, error detection, echo-checking layouts first, and rewinding only the memory’s horizon: 8 steps held 0.80 to 0.87 out to T = 18.</p></div>
 </div>
 </div>
 <p style="position:absolute;left:128px;bottom:56px;width:1480px;font-size:24px;color:#6A7282">Scale estimates, not compiled circuits. Chart: logical gates at p = 0.09. Roadmap: IBM’s published Starling target.</p>
-<p style="position:absolute;right:128px;bottom:56px;width:100px;text-align:right;font-size:24px;color:#6A7282">18</p>
+<p style="position:absolute;right:128px;bottom:56px;width:100px;text-align:right;font-size:24px;color:#6A7282">19</p>
 <aside>So why does this have potential, when today it loses to a laptop? Because of where each side runs out. Conditioning on a 64-step record takes about 2.7 million gates as textbook Grover, and about 40,000 once steered. Not today’s hardware. But IBM’s published target for 2029 is 200 logical qubits and 100 million gates. That would fit a machine with 50 hidden qubits and a 150-step record, and just holding that memory classically takes about 18 petabytes. That’s a rough estimate, not a result, but it’s where our classical baseline stops working.</aside>
 </section>

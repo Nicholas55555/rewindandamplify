@@ -535,7 +535,7 @@ def fig_hw_runs() -> None:
             ax.plot([a, b], [yi, yi], color=AXIS, lw=3, zorder=1)
         ax.plot([runs[t][rival]["hit"] for t in order], y, "s", color=BLUE, ms=11, mec=SURFACE, mew=2, label=rival_label, zorder=2)
         ax.plot([runs[t][resilient]["hit"] for t in order], y, "o", color=ORANGE, ms=12, mec=SURFACE, mew=2, label="steer + local", zorder=3)
-        ax.set_xlim(0.4, 1)
+        ax.set_xlim(0.3, 1)
         ax.set_title(title, loc="left", color=INK2, fontsize=16)
         ax.set_xlabel("chance of the event")
         ax.grid(axis="y", visible=False)
@@ -545,7 +545,8 @@ def fig_hw_runs() -> None:
     axes[2].axvline(3, color=MUTED, lw=1.6, ls=(0, (4, 3)))
     axes[2].plot(signed, y, "o", color=VIOLET, ms=12, mec=SURFACE, mew=2)
     for value, yi in zip(signed, y):
-        axes[2].text(value + 0.35, yi, f"{value:.1f}", va="center", fontsize=13, color=INK2)
+        axes[2].text(value + 0.35, yi, f"{value:.1f}", va="center", fontsize=13, color=INK2, zorder=3,
+                     bbox={"facecolor": SURFACE, "edgecolor": "none", "pad": 1.5})
     axes[2].set_title("after-click separation, τ = 3", loc="left", color=INK2, fontsize=16)
     axes[2].set_xlabel("standard errors, no defect above defect")
     axes[2].grid(axis="y", visible=False)
@@ -556,23 +557,26 @@ def fig_hw_runs() -> None:
 
 
 def fig_hw_after_click() -> None:
-    """The physics question on the real chip: what follows a click, with and without a hidden defect."""
+    """The physics question on real chips: what follows a click, with and without a hidden defect."""
     c = comparison()
-    fingerprint = c["fingerprint"]["suppressed" if "suppressed" in c["fingerprint"] else "plain"]
+    runs = c["runs"]
+    exact = c["fingerprint"]["plain"]["amplified"]
     fig, axes = plt.subplots(1, 2, figsize=(13, 5.2), sharey=True)
     tau = np.arange(1, 4)
-    for ax, key, exact_key, shots, title in ((axes[0], "defect", "exact_defect", "shots_defect", "one defect"),
-                                             (axes[1], "no_defect", "exact_no_defect", "shots_no_defect", "no defect")):
-        ax.plot(tau, fingerprint["amplified"][exact_key], "_", color=INK, ms=34, mew=2.6, label="exact")
-        for label, name, colour, off in (("plain sampling", "plain", GREY, -0.1), ("steer + local, r = 1", "amplified", ORANGE, 0.1)):
-            values = np.array(fingerprint[name][key])
-            se = np.sqrt(values * (1 - values) / max(fingerprint[name][shots], 1))
-            ax.errorbar(tau + off, values, yerr=se, fmt="o", color=colour, ms=9, mec=SURFACE, mew=2, capsize=0, lw=2, label=label)
+    series = (("plain", "o", ORANGE, -0.14, "Kingston, plain"), ("plain2", "s", ORANGE, -0.05, "Kingston, plain, repeat"),
+              ("plain_marrakesh2", "D", VIOLET, 0.05, "Marrakesh, off the bad qubits"), ("dd", "^", GREY, 0.14, "Kingston, DD alone"))
+    for ax, key, exact_key, title in ((axes[0], "defect", "exact_defect", "one defect"), (axes[1], "no_defect", "exact_no_defect", "no defect")):
+        ax.plot(tau, exact[exact_key], "_", color=INK, ms=38, mew=2.6, label="exact")
+        for tag, marker, colour, off, label in series:
+            if tag in runs:
+                ax.plot(tau + off, runs[tag]["after_click"][key], marker, color=colour, ms=10, mec=SURFACE, mew=1.5, lw=0, label=label)
         ax.set_xticks(tau)
         ax.set_xlabel("steps after the click (τ)")
         ax.set_title(title, loc="left", fontsize=16, color=INK2)
+        ax.grid(axis="x", visible=False)
     axes[0].set_ylabel("P(click at t + τ | click at t)")
-    fig.legend(*axes[0].get_legend_handles_labels(), loc="upper center", ncol=3, bbox_to_anchor=(0.5, 1.08))
+    axes[0].set_ylim(0, 0.14)
+    fig.legend(*axes[0].get_legend_handles_labels(), loc="upper center", ncol=5, fontsize=13, bbox_to_anchor=(0.5, 1.08))
     fig.tight_layout()
     done(fig, "fig_hw_after_click")
 

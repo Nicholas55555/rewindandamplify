@@ -1,25 +1,12 @@
-<section id="hardware" data-transition="fade" style="background:#F6F5F0;color:#12203A;font-family:'IBM Plex Sans', Arial, sans-serif;padding:96px 128px 140px;display:flex;flex-direction:column;gap:32px">
-<h2 style="font-size:60px;font-weight:600;line-height:1.12;letter-spacing:-0.5px">Built for real IBM hardware, in proper Qiskit</h2>
-<div style="display:flex;gap:48px;flex:1">
-<div style="flex:1.05;display:flex;flex-direction:column;gap:22px">
-<h3 style="font-size:32px;font-weight:600;color:#B5431A">What is ready</h3>
-<p style="font-size:29px;line-height:1.3;color:#3B4658"><b>39 circuits</b> in one job, from textbook Grover to the resilient build, with readout calibration and echo noise checks</p>
-<p style="font-size:29px;line-height:1.3;color:#3B4658"><b>Two jobs</b>, plain and with dynamical decoupling and Pauli twirling, to measure what suppression buys</p>
-<p style="font-size:29px;line-height:1.3;color:#3B4658"><b>Rehearsed end to end</b> on a local device snapshot through the same SamplerV2 code path</p>
-<div style="background:#ECEAE2;border-radius:12px;padding:20px 24px"><p style="font-size:28px;line-height:1.3;color:#12203A"><b>Status:</b> not yet run on a real device. Every result in this talk is simulation, including the IBM noise models.</p></div>
+<section id="hardware" data-transition="fade" style="background:#F6F5F0;color:#12203A;font-family:'IBM Plex Sans', Arial, sans-serif;padding:96px 128px 140px;display:flex;flex-direction:column;gap:20px">
+<h2 style="font-size:60px;font-weight:600;line-height:1.12;letter-spacing:-0.5px">On a real IBM chip, fewer gates won</h2>
+<div style="background:#FCFCFB;border:1px solid #DDDAD0;border-radius:16px;padding:10px;display:flex;justify-content:center"><img src="/_blob/5facebde39fb66f4c552a0b5e75a3218" alt="The chance of a rare event on ibm_kingston. At three steps: plain sampling 0.06, textbook Grover 0.59 with 213 gates, steer plus local 0.87 with 40 gates. At five steps: steer plus local 0.75 with 88 gates, against 0.65 with 171 for the same steer and the textbook reflection. Textbook circuits fall well short of the noise model's prediction" style="width:1285px;height:560px;object-fit:contain"></div>
+<div style="display:flex;gap:40px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:2px"><p style="font-size:50px;font-weight:600;line-height:1.1">0.87 vs 0.59</p><p style="font-size:26px;line-height:1.25;color:#3B4658">chance of the event, on 40 gates against 213</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:2px"><p style="font-size:50px;font-weight:600;line-height:1.1">0.06 vs 0.26</p><p style="font-size:26px;line-height:1.25;color:#3B4658">distribution error, so better answers too</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:2px"><p style="font-size:50px;font-weight:600;line-height:1.1">20 of 20</p><p style="font-size:26px;line-height:1.25;color:#3B4658">comparisons won, across five jobs and both lengths</p></div>
 </div>
-<div style="flex:1;display:flex;flex-direction:column;gap:18px">
-<div style="background:#12203A;border-radius:14px;padding:26px 28px;display:flex;flex-direction:column;gap:10px">
-<p style="font-size:26px;color:#8FA3C2;font-family:'JetBrains Mono', 'Courier New', monospace">qiskit 2.6, aer, ibm-runtime</p>
-<p style="font-size:26px;line-height:1.35;color:#F5F3EC;font-family:'JetBrains Mono', 'Courier New', monospace">grover_operator<br>generate_preset_pass_manager<br>SamplerV2<br>dynamical_decoupling, twirling</p>
-</div>
-<div style="display:flex;gap:24px">
-<div style="flex:1;display:flex;flex-direction:column;gap:2px"><p style="font-size:54px;font-weight:600;line-height:1.1">110</p><p style="font-size:26px;line-height:1.25;color:#3B4658">automated tests, all passing</p></div>
-<div style="flex:1;display:flex;flex-direction:column;gap:2px"><p style="font-size:54px;font-weight:600;line-height:1.1">≈ 1 min</p><p style="font-size:26px;line-height:1.25;color:#3B4658">estimated QPU time per job</p></div>
-</div>
-<p style="font-size:26px;line-height:1.3;color:#3B4658">Layouts are chosen by the device’s own error rates: best of 8 compiles at optimization level 3.</p>
-</div>
-</div>
+<p style="position:absolute;left:128px;bottom:56px;width:1480px;font-size:24px;color:#6A7282">ibm_kingston, 5 Nov 2026, 4,096 shots, readout-corrected. Jobs dbmfqlt8ft8s738uplmg and dbmfqme74qds73ds7ieg.</p>
 <p style="position:absolute;right:128px;bottom:56px;width:100px;text-align:right;font-size:24px;color:#6A7282">16</p>
-<aside>On hardware, here’s exactly where we stand. Everything so far is simulation, including the IBM device noise models. The job is built and rehearsed: 39 circuits, with readout calibration and echo circuits that measure the noise directly. It runs twice, plain and with dynamical decoupling and Pauli twirling, to see what error suppression buys. It’s proper Qiskit throughout: the library’s Grover operator, preset pass managers, layouts chosen by the device’s own error rates, and SamplerV2. There are 110 automated tests, and the same code path has run end to end on a local device snapshot.</aside>
+<aside>This isn’t only simulation. We ran the same 39 circuits on IBM’s Kingston chip, using at most 11 of its 156 qubits, and we committed our predictions before spending any device time. Same rare click, three steps. Plain sampling hits it 6 percent of the time. Textbook Grover, with 213 two-qubit gates, gets 59 percent. The resilient build, with 40 gates, gets 87. Its answers are better too: distribution error 0.06, against 0.26. A repeat run gave almost the same numbers. Across five jobs and both record lengths, it won all 20 comparisons. And look at the diamonds: the chip was harsher on depth than its own noise model, so the gap came out twice as wide as simulation said.</aside>
 </section>

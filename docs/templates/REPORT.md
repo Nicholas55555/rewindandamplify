@@ -11,11 +11,14 @@ We fused Grover's algorithm with a quantum recurrent state machine (QRSM), and r
 - **Rarity splits in two.** A click is rare because the memory must be excited, and because it must emit. The second factor is one gate angle, and tuning it is exact and free. Grover is only needed for the first. On a real 64-step record, the cost per conditioned sample goes from 27,495,891 runs, to 6,240 by steering, to 125 calls with Grover on top.
 - **The reflection needs far less than every qubit.** Watching the hidden memory and the light the question reads is nearly exact on short records, at 3 qubits for any length. Watching only the memory, our first idea, scrambles the hidden state.
 - **Under noise, the resilient build beats textbook Grover.** Across five IBM device snapshots it used @@RATIOMIN@@ to @@RATIOMAX@@ times fewer two-qubit gates, with a higher hit rate in @@HITWINS@@ and a lower distribution error in @@TVDWINS@@ of cells.
-- **There is no speedup today.** An exact classical sampler gives a sample in about a millisecond at this size, and beats all of this. Everything here is simulation so far. The core idea, amplified rejection sampling, is from 2014.
+- **It held up on real chips.** On ibm_kingston, steer + local won @@HWWINS@@ comparisons across five jobs. In the first job it hit a rare event @@HWFIRSTR@@ of the time on 40 two-qubit gates, against @@HWFIRSTB@@ for textbook Grover on 213. The after-click fingerprint came through at about 6 standard errors in three unsuppressed jobs on two chips. The chips also showed what simulation couldn't: depth costs about 3 times more per gate than the noise model says, and the calibration data can hide a bad patch of qubits.
+- **There is no speedup today.** An exact classical sampler gives a sample in about a millisecond at this size, and beats all of this. The core idea, amplified rejection sampling, is from 2014.
 
 ## 1. The machine
 
 The QRSM is the one from our [hidden-defect project](../prior_work/hidden_defects/README.md): an emitter, driven by RY(theta), and a defect that turns by RZ(zeta) and exchanges energy with it by phi. The emitter emits into a light with chance gamma = sin^2(alpha). The defaults are theta = 0.6, gamma = 0.2, phi = 0.45 and zeta = 0.3. Each step costs 4 CZ on IBM Heron. Two hidden qubits hold the memory, and the light's measured bit is the click.
+
+In the terms of our circuit diagrams it is the constrained hybrid, in emitter form: a fresh ancilla, the light, swaps partly with memory 1, the emitter, and is reset, and memory 2, the defect, never meets it. It is not the trainable hybrid or the free-unitary hybrid. Purifying it (section 2) defers the resets, so the circuit Grover runs on is fully coherent, which is what lifts the limit our Grover memory-access note put on hybrids.
 
 As a model it is a hidden quantum Markov model (Monras, Beige and Wiesner). Its step has two Kraus operators, K_0 and K_1, and P(y) = ||K_{y_T} ... K_{y_1} |0>||^2.
 
@@ -202,13 +205,72 @@ The hit rate stays roughly flat as T grows, and the hidden state stays good. But
 
 ## 13. Real hardware
 
-**Not yet run.** The job is built and rehearsed end to end through the same SamplerV2 code path on a local device snapshot. It has 39 circuits and a readout calibration pair, at 4,096 shots each, and takes about 1 minute of QPU time per job by our estimate. It runs twice, plain and with dynamical decoupling (XY4) and Pauli twirling of gates and measurements. It includes echo circuits, A then A-inverse, which measure a device's noise directly. Layouts are chosen by the device's own reported error rates, as the best of 8 compiles at optimization level 3.
+**It ran.** On 5 November 2026 we ran the 39 circuits on two IBM Heron chips: @@HWJOBS@@ jobs at 4,096 shots per circuit, @@HWSECONDS@@ seconds of device time on the free plan. No circuit used more than 11 of a chip's 156 qubits. Before the first job, we committed our predictions, the code that scores them, the compiled circuits and a simulation of those circuits with the device's own noise model (commit `2059f36`). That model has gate errors, relaxation during gates and readout errors. It has no crosstalk and no decay on idle qubits. Hit rates here are readout-corrected.
 
-Expected on a real Heron device, from the snapshots: T = 3, steer + local, hit rate 0.80 to 0.91, against about 0.05 for plain sampling.
+We chose ibm_kingston on that day's calibration: median two-qubit error @@HWCZ@@, T1 @@HWT1@@ µs, T2 @@HWT2@@ µs.
+
+### The resilient build won on Kingston
+
+The first pair of jobs, one plain and one with DD + twirling:
+
+@@HWHEROTABLE@@
+
+![The chance of a rare event on ibm_kingston, build by build, against the noise model and the noiseless answer](../results/figures/fig_hw_builds.png)
+
+Across all five Kingston jobs, steer + local won @@HWWINS@@ comparisons:
+
+| | steer + local | its rival |
+|---|---|---|
+| T = 3, hit rate | @@HWT3R@@, on 40 gates | @@HWT3B@@, textbook r = 3, on 213 gates |
+| T = 3, TVD | @@HWT3RT@@ | @@HWT3BT@@ |
+| T = 5, hit rate | @@HWT5R@@, on 88 gates | @@HWT5B@@, the same steer with the textbook reflection, on 171 gates |
+| T = 5, TVD | @@HWT5RT@@ | @@HWT5BT@@ |
+
+The chip punished depth more than its noise model did, so the lead at T = 3 came out at @@HWLEADREAL@@ in the first job, against @@HWLEADMODEL@@ predicted. Textbook Grover at its best, with DD, reached @@HWBESTBOOK@@. That's still far behind steer + local with no suppression at all. Cutting gates mattered more than any suppression we tried.
+
+### Every job, side by side
+
+@@HWRUNSTABLE@@
+
+The last column is in standard errors, and it's positive when no defect sits above defect, as the exact answer has it.
+
+![Every real job side by side: hit rates at T = 3 and T = 5, and the after-click separation](../results/figures/fig_hw_runs.png)
+
+**It repeats.** A second plain job on the same compiled circuits gave @@HWAGAINR@@ and @@HWAGAINB@@, against @@HWFIRSTR@@ and @@HWFIRSTB@@ in the first.
+
+### Noise analysis
+
+**Interference survives.** With no defect, the hit rate should rise and then fall as r grows. Noise can't make that shape, because it pushes "any click" towards 0.875. The chip gave @@HWCURVE@@, against @@HWCURVEIDEAL@@ noiseless. Falling well below 0.875 at r = 3 is interference, after 147 two-qubit gates.
+
+![Textbook Grover's hit rate against r: noiseless, noise model and real device](../results/figures/fig_hardware.png)
+
+**Depth costs more than the model says.** Fidelity with the noiseless answer fell by about @@HWSLOPE@@ per two-qubit gate, against @@HWSLOPEMODEL@@ in the noise model. The echoes agree: run forwards and back, the all-in error came to @@HWECHO@@ per gate on Kingston, against @@HWECHOMODEL@@ in the model and @@HWCZ@@ reported for the gate alone. The device fell below its model on @@HWBELOW@@ of circuits with an ideal hit rate of 0.5 or more. The model still ranked the circuits well, with a rank correlation of @@HWRANK@@. So it's useful for comparing builds, and optimistic about how they'll do.
+
+![Fidelity against gate count, and predicted against measured hit rate](../results/figures/fig_hw_noise.png)
+
+**Suppression did little.** Two identical plain jobs differ, circuit by circuit, about as much as a suppressed job differs from plain: the plain repeat "improved" TVD on @@HWTVDAGAIN@@ of circuits, and the three suppressed jobs on @@HWTVDMODES@@. So those shares are run-to-run noise, and H5's 50% tells us nothing. What does show is small: median fidelity on circuits with 100 or more gates went from @@HWDEEPPLAIN@@ to @@HWDEEP@@, and the slope of fidelity with depth eased from @@HWSLOPE@@ to @@HWSLOPEMODES@@. Against that, steer + local lost a little at T = 3, and DD erased the fingerprint.
+
+**A bad patch on Marrakesh.** The first Marrakesh job went badly. At T = 3, steer + local got @@HWBADT3@@ against @@HWBADT3B@@, where the model said TVD 0.05. At T = 5 it narrowly lost on hit rate: @@HWBADT5@@ against @@HWBADT5B@@. Nearly all of the damage sat on one cluster of qubits, 5, 6, 7, 8 and 17. The compiler chose them for 31 of the 39 circuits, because the reported error rates made them look like the best on the chip. Echoes on them showed @@HWBADECHO@@ per gate, against about 0.2% reported for those gates. Circuits that landed elsewhere on that chip did about as well as on Kingston.
+
+So we recompiled to stay off those five qubits, and logged what we expected first. Echoes fell to @@HWMOVEDECHO@@. Steer + local won all four comparisons: @@HWMOVEDT3@@ against @@HWMOVEDT3B@@ at T = 3, and @@HWMOVEDT5@@ against @@HWMOVEDT5B@@ at T = 5. We don't know what was wrong with those qubits. We picked them after seeing the data, so this job tests the explanation, and it isn't a clean replication. The practical lesson is cheap: run a short echo on a layout before trusting it.
+
+### The fingerprint on real chips
+
+![The click rate after a click on real chips, with and without a defect, against the exact answer](../results/figures/fig_hw_after_click.png)
+
+Telling a defect from none at τ = 3 means telling 0.047 from 0.101. With no suppression, steer + local read that difference at @@HWZFIRST@@ and @@HWZAGAIN@@ standard errors on Kingston, and @@HWZMOVED@@ on Marrakesh off the bad qubits. Plain sampling, from the same jobs, reached @@HWZPLAIN@@. That's close to the simulated 7.1 against 2.4.
+
+It's fragile, though. DD took it to @@HWZDD@@, twirling to @@HWZTWIRL@@, and both together to @@HWZBOTH@@. We predicted twirling was to blame, and that missed. Every suppressed job raised the defect circuit's click rate at τ = 3, from about 0.065 to between 0.10 and 0.13. One possible reason, untested: fresh light qubits wait in |0>, where idling does them no harm, while DD keeps pulsing them. τ = 1 and τ = 2 don't separate reliably on either chip. And the two circuits differ in depth, with the deeper defect circuit getting more false clicks. That works against the separation, so it doesn't explain it away.
+
+### What we predicted
+
+These came before the jobs, and were scored by calculation: **@@HWTALLY@@.** H6 scored "held" because it says "in either job", and the suppressed job on its own would not have passed. F6 and F7 test a post-hoc explanation.
+
+@@HWSCORE@@
 
 ## 14. What we predicted, and what happened
 
-Expectations were logged before each run. The full list is in the [design log](design_log.md).
+Expectations were logged before each run. The full list is in the [design log](design_log.md). The hardware predictions have their own table in section 13.
 
 @@SCORE@@
 
@@ -216,7 +278,7 @@ Expectations were logged before each run. The full list is in the [design log](d
 
 - **No speedup.** A classical sampler beats everything here at this size.
 - **No quantum advantage shown.** A crossover at large hidden memories is plausible, and we can't test it.
-- **Simulation only, so far.** That includes the IBM noise models, which are snapshots.
+- **Most results are simulation.** That includes the IBM noise models, which are snapshots. The real-chip runs are small: @@HWJOBS@@ jobs on two chips in one evening, at most 11 qubits and 5 steps. At T = 5 the distribution error is still @@HWT5RT@@ on Kingston.
 - **We rewind a model of a chip, never a chip.** A physical defect can't be run backwards. This queries what was learned from clicks.
 - **Steering** is classical, exact only for clicks at known steps, and needs a rough p.
 - **The local reflection** is an approximation, it drifts on long records, and it saves nothing for questions that read every light.

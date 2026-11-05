@@ -7,13 +7,13 @@
    "job_id": "dbmfqlt8ft8s738uplmg",
    "qpu_seconds": 47,
    "submitted": "2026-11-05 17:04:07",
-   "fetched": "2026-11-05 17:22:53"
+   "fetched": "2026-11-05 17:25:36"
   },
   "suppressed": {
    "job_id": "dbmfqme74qds73ds7ieg",
    "qpu_seconds": 50,
    "submitted": "2026-11-05 17:04:07",
-   "fetched": "2026-11-05 17:22:54"
+   "fetched": "2026-11-05 17:25:37"
   }
  },
  "calibration": {
@@ -1197,6 +1197,232 @@
    ]
   }
  },
+ "by_mode": {
+  "plain2": {
+   "all": {
+    "circuits": 29,
+    "hit_error_improved": 0.5517241379310345,
+    "tvd_improved": 0.4827586206896552,
+    "fidelity_improved": 0.5517241379310345,
+    "median_hit_error": [
+     0.05351271899306294,
+     0.06470027926420803
+    ],
+    "median_tvd": [
+     0.13575495481811242,
+     0.13859655561573314
+    ],
+    "median_fidelity": [
+     0.8256145560299845,
+     0.8393017378188253
+    ]
+   },
+   "amplified": {
+    "circuits": 24,
+    "hit_error_improved": 0.5833333333333334,
+    "tvd_improved": 0.5416666666666666,
+    "fidelity_improved": 0.6666666666666666,
+    "median_hit_error": [
+     0.07994820058713409,
+     0.07945795326870353
+    ],
+    "median_tvd": [
+     0.1513536170743346,
+     0.14411391794812306
+    ],
+    "median_fidelity": [
+     0.758820524570967,
+     0.7640864364308115
+    ]
+   },
+   "deep": {
+    "circuits": 12,
+    "hit_error_improved": 0.5833333333333334,
+    "tvd_improved": 0.5833333333333334,
+    "fidelity_improved": 0.75,
+    "median_hit_error": [
+     0.17557263961301323,
+     0.164941800854911
+    ],
+    "median_tvd": [
+     0.25428636420271816,
+     0.26849631790270334
+    ],
+    "median_fidelity": [
+     0.4979861972992695,
+     0.4955421818367213
+    ]
+   }
+  },
+  "dd": {
+   "all": {
+    "circuits": 29,
+    "hit_error_improved": 0.4482758620689655,
+    "tvd_improved": 0.4482758620689655,
+    "fidelity_improved": 0.5517241379310345,
+    "median_hit_error": [
+     0.05351271899306294,
+     0.08189769130641311
+    ],
+    "median_tvd": [
+     0.13575495481811242,
+     0.15731122306891016
+    ],
+    "median_fidelity": [
+     0.8256145560299845,
+     0.7945510104495435
+    ]
+   },
+   "amplified": {
+    "circuits": 24,
+    "hit_error_improved": 0.4583333333333333,
+    "tvd_improved": 0.4583333333333333,
+    "fidelity_improved": 0.6666666666666666,
+    "median_hit_error": [
+     0.07994820058713409,
+     0.10621689007418053
+    ],
+    "median_tvd": [
+     0.1513536170743346,
+     0.16038435773201964
+    ],
+    "median_fidelity": [
+     0.758820524570967,
+     0.7523177457900598
+    ]
+   },
+   "deep": {
+    "circuits": 12,
+    "hit_error_improved": 0.5,
+    "tvd_improved": 0.4166666666666667,
+    "fidelity_improved": 0.75,
+    "median_hit_error": [
+     0.17557263961301323,
+     0.14978856225775788
+    ],
+    "median_tvd": [
+     0.25428636420271816,
+     0.2758845988503841
+    ],
+    "median_fidelity": [
+     0.4979861972992695,
+     0.5498824593416425
+    ]
+   }
+  },
+  "twirl": {
+   "all": {
+    "circuits": 29,
+    "hit_error_improved": 0.27586206896551724,
+    "tvd_improved": 0.4827586206896552,
+    "fidelity_improved": 0.3448275862068966,
+    "median_hit_error": [
+     0.05351271899306294,
+     0.07421366148593944
+    ],
+    "median_tvd": [
+     0.13575495481811242,
+     0.16808894446853062
+    ],
+    "median_fidelity": [
+     0.8256145560299845,
+     0.8312484578833151
+    ]
+   },
+   "amplified": {
+    "circuits": 24,
+    "hit_error_improved": 0.2916666666666667,
+    "tvd_improved": 0.5,
+    "fidelity_improved": 0.4166666666666667,
+    "median_hit_error": [
+     0.07994820058713409,
+     0.09320379045934224
+    ],
+    "median_tvd": [
+     0.1513536170743346,
+     0.1698140588882347
+    ],
+    "median_fidelity": [
+     0.758820524570967,
+     0.7389228268332086
+    ]
+   },
+   "deep": {
+    "circuits": 12,
+    "hit_error_improved": 0.25,
+    "tvd_improved": 0.5833333333333334,
+    "fidelity_improved": 0.4166666666666667,
+    "median_hit_error": [
+     0.17557263961301323,
+     0.19549395816397894
+    ],
+    "median_tvd": [
+     0.25428636420271816,
+     0.22806741642702733
+    ],
+    "median_fidelity": [
+     0.4979861972992695,
+     0.528229660920761
+    ]
+   }
+  },
+  "suppressed": {
+   "all": {
+    "circuits": 29,
+    "hit_error_improved": 0.3793103448275862,
+    "tvd_improved": 0.4827586206896552,
+    "fidelity_improved": 0.4482758620689655,
+    "median_hit_error": [
+     0.05351271899306294,
+     0.08070422603705751
+    ],
+    "median_tvd": [
+     0.13575495481811242,
+     0.1639022880505667
+    ],
+    "median_fidelity": [
+     0.8256145560299845,
+     0.8263758196065818
+    ]
+   },
+   "amplified": {
+    "circuits": 24,
+    "hit_error_improved": 0.4166666666666667,
+    "tvd_improved": 0.4166666666666667,
+    "fidelity_improved": 0.5416666666666666,
+    "median_hit_error": [
+     0.07994820058713409,
+     0.09147933886012555
+    ],
+    "median_tvd": [
+     0.1513536170743346,
+     0.17176922878353107
+    ],
+    "median_fidelity": [
+     0.758820524570967,
+     0.7447941445155153
+    ]
+   },
+   "deep": {
+    "circuits": 12,
+    "hit_error_improved": 0.5,
+    "tvd_improved": 0.5,
+    "fidelity_improved": 0.6666666666666666,
+    "median_hit_error": [
+     0.17557263961301323,
+     0.1767496965581637
+    ],
+    "median_tvd": [
+     0.25428636420271816,
+     0.23168539234625754
+    ],
+    "median_fidelity": [
+     0.4979861972992695,
+     0.5463234401492583
+    ]
+   }
+  }
+ },
  "readout_correction": {
   "plain": {
    "median_hit_error_raw": 0.05855217008032472,
@@ -1512,6 +1738,68 @@
     "signed_tau3": 0.020075426271790903
    }
   },
+  "plain_marrakesh2": {
+   "backend": "ibm_marrakesh",
+   "job_id": "dbmg49d8mdtc73d7tcn0",
+   "qpu_seconds": 48,
+   "t3_resilient": {
+    "hit": 0.8151243566698422,
+    "tvd": 0.11495687697565864,
+    "cz": 40
+   },
+   "t3_textbook": {
+    "hit": 0.5130587644399799,
+    "tvd": 0.29070943265234317,
+    "cz": 243
+   },
+   "t5_resilient": {
+    "hit": 0.6788567363001289,
+    "tvd": 0.20692906163537622,
+    "cz": 88
+   },
+   "t5_textbook": {
+    "hit": 0.5360018275906024,
+    "tvd": 0.5383317933478255,
+    "cz": 175
+   },
+   "no_defect_curve": [
+    0.2236834871710104,
+    0.8231656250643243,
+    0.7903530260890673,
+    0.532666239942901
+   ],
+   "catalog_r2": 0.7961793942103792,
+   "echo_error_per_gate": [
+    0.009156390598271447,
+    0.007934387614901284,
+    0.0073247730228183094
+   ],
+   "fidelity_slope": 0.005176767297170549,
+   "median_tvd": 0.16170776681024726,
+   "after_click": {
+    "defect": [
+     0.0564757406867257,
+     0.0612470798771046,
+     0.0569639927328403
+    ],
+    "no_defect": [
+     0.04320884639525432,
+     0.10174864341778239,
+     0.09901379233584173
+    ],
+    "separation": [
+     2.5423516755908313,
+     6.239458548095703,
+     6.614966333902845
+    ],
+    "plain_sampling_separation": [
+     2.3318872488061517,
+     0.9797805061332892,
+     0.6209308709903418
+    ],
+    "signed_tau3": 0.04204979960300143
+   }
+  },
   "suppressed": {
    "backend": "ibm_kingston",
    "job_id": "dbmfqme74qds73ds7ieg",
@@ -1666,6 +1954,18 @@
    "id": "F5",
    "prediction": "A second chip: steer + local reaches at least 0.70 at T = 3",
    "measured": "0.809",
+   "verdict": "held"
+  },
+  {
+   "id": "F6",
+   "prediction": "Off qubits 5, 6, 7, 8 and 17, the echo's all-in error per two-qubit gate on ibm_marrakesh falls below 1%, from 1.5% to 3.4%",
+   "measured": "0.92%, 0.79%, 0.73%",
+   "verdict": "held"
+  },
+  {
+   "id": "F7",
+   "prediction": "Off those qubits, steer + local beats its rival on hit rate and TVD at T = 3 and T = 5, with TVD at T = 3 of 0.15 or less",
+   "measured": "T = 3: 0.815 vs 0.513, TVD 0.115 vs 0.291; T = 5: 0.679 vs 0.536, TVD 0.207 vs 0.538",
    "verdict": "held"
   }
  ]

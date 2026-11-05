@@ -75,6 +75,8 @@ footer { font-size: 13px; color: var(--ink2); max-width: 78ch }
     <p class="lede">A quantum recurrent state machine emits a click, or no click, at each step. A click at one chosen step is rare, so most runs tell you nothing about it. Change the build and watch what happens to 48 runs of the machine. Everything here is simulated exactly in your browser.</p>
   </header>
 
+  <p class="note"><b>On a real chip:</b> on IBM’s ibm_kingston, 3 steps, steer + local reached 0.87 with 40 two-qubit gates, and textbook Grover 0.59 with 213. This page simulates the same circuits with a simple noise model.</p>
+
   <section class="panel" aria-labelledby="t1">
     <h2 id="t1">Ask about a rare click</h2>
     <div class="split">

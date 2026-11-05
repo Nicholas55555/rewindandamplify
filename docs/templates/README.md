@@ -29,7 +29,7 @@ So we built this in four moves:
 
 @@RESULTS@@
 
-**What we don't claim.** There is no speedup today: at this size an exact classical sampler gives a sample in about a millisecond. Everything here is simulation, including the IBM noise models (see [Real hardware](#real-hardware)). We rewind a *model* of a chip, never a chip: a physical defect can't be run backwards. Steering is classical importance sampling. The local reflection is an approximation that drifts on long records. Amplified rejection sampling is a known idea ([Low, Yoder & Chuang 2014](https://doi.org/10.1103/PhysRevA.89.062315)): what's ours is the mapping onto hidden quantum models, and the resilience work.
+**What we don't claim.** There is no speedup today: at this size an exact classical sampler gives a sample in about a millisecond. Most results here are simulation, including the IBM noise models, and the [real-chip runs](#real-hardware) are small: at most 11 qubits and 5 steps. We rewind a *model* of a chip, never a chip: a physical defect can't be run backwards. Steering is classical importance sampling. The local reflection is an approximation that drifts on long records. Amplified rejection sampling is a known idea ([Low, Yoder & Chuang 2014](https://doi.org/10.1103/PhysRevA.89.062315)): what's ours is the mapping onto hidden quantum models, and the resilience work.
 
 **Why it could still matter.** The classical sampler's cost grew about 6 times per hidden qubit in our tests. IBM's [published 2029 target](https://www.ibm.com/quantum-computing/roadmap), 200 logical qubits and 100 million gates, would by our rough estimate fit a QRSM with 50 hidden qubits and a 150-step record, whose memory alone would take about 18 petabytes classically. That's an estimate, not a result.
 
@@ -42,7 +42,7 @@ Python 3.10 or later. No account needed.
 ```bash
 pip install -r requirements.txt
 python demo/demo.py          # the one-minute demo: real circuits on Aer
-pytest                       # 110 tests
+pytest                       # 114 tests
 ```
 
 - **[notebooks/walkthrough.ipynb](notebooks/walkthrough.ipynb)** walks through the idea in a dozen cells, with outputs saved.
@@ -72,7 +72,17 @@ circuit = hardware_amplified(A, oracle, r=1, reflect_on=reflection_qubits(machin
 
 ## Real hardware
 
-**Status: built and rehearsed, not yet run on a real device.** The job is 39 circuits, from textbook Grover to the resilient build, with readout calibration and echo circuits that measure the noise directly. It runs twice, plain and with dynamical decoupling and Pauli twirling. The same code path has run end to end on a local device snapshot.
+**It ran on real IBM chips.** On 5 November 2026 we ran the 39 circuits on ibm_kingston and ibm_marrakesh, two 156-qubit Heron chips: @@HWJOBS@@ jobs, @@HWSECONDS@@ seconds of device time on the free plan, and at most 11 qubits per circuit. Our predictions went into git before the first job, and scored @@HWTALLY@@.
+
+![The chance of a rare event on ibm_kingston, build by build, against the noise model and the noiseless answer](results/figures/fig_hw_builds.png)
+
+- **Fewer gates won.** On Kingston, steer + local won @@HWWINS@@ comparisons across five jobs. At T = 3 it hit the event @@HWFIRSTR@@ of the time on 40 two-qubit gates, against @@HWFIRSTB@@ for textbook Grover on 213, with a distribution error of @@HWFIRSTRT@@ against @@HWFIRSTBT@@. A repeat gave @@HWAGAINR@@ and @@HWAGAINB@@.
+- **Depth costs more than the noise model says,** about 3 times more per gate. So the lead came out about twice what simulation predicted.
+- **Suppression did little.** Textbook Grover at its best, with DD, reached @@HWBESTBOOK@@. Steer + local got more with none.
+- **The after-click fingerprint came through,** at @@HWZFIRST@@ and @@HWZAGAIN@@ standard errors on Kingston and @@HWZMOVED@@ on Marrakesh, where plain sampling never passed 2. It's fragile: DD erased it, which we got wrong in advance.
+- **Calibration hid a bad patch.** On Marrakesh, the qubits that looked best did far worse than the others we used. Our echo circuits caught it, and moving off them recovered the result. That job is a post-hoc test, and we label it so.
+
+Job IDs, every table and the noise analysis are in [section 13 of the report](docs/REPORT.md#13-real-hardware). The raw counts and the exact compiled circuits are in [`results/hardware/`](results/hardware/).
 
 To run it on your own IBM Quantum account:
 
@@ -100,7 +110,7 @@ qrsm_grover/        the package
   hardware.py         the hardware job, compiling and readout correction
 experiments/        one script per experiment, each writing to results/
 results/            every result, numbers.json with the headline figures, and the charts
-tests/              110 tests, with pass marks that follow from theory
+tests/              114 tests, with pass marks that follow from theory
 demo/               the one-minute demo and the interactive lab
 notebooks/          a walkthrough, with outputs saved
 docs/               the report, the one-pager, the team guide and the design log

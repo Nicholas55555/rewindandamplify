@@ -6,8 +6,8 @@ Everything you need to record the video and answer questions, in one place. You 
 
 - [ ] Add the team's names: cover slide, last slide, and the Team section of the README.
 - [ ] Each person fills in their own part on the last slide.
-- [ ] Run the hardware job if you can (section 5). The deck is accurate either way.
-- [ ] Record the video: 15 minutes or less. Aim for 13. Everyone speaks (section 2).
+- [x] Run the hardware job. Done on 5 November: seven jobs on two real IBM chips.
+- [ ] Record the video: 15 minutes or less. Aim for 14. Everyone speaks (section 2).
 - [ ] Publish the GitHub repository, and put its link on the last slide and in DeepStation.
 - [ ] On DeepStation, submit the video and the GitHub link. It's the only submission platform.
 - [ ] 1:30 p.m. Friday, SRHM 114: present at the ceremony. Certificates need both submitting and presenting.
@@ -25,7 +25,7 @@ Everything you need to record the video and answer questions, in one place. You 
 3. **Amplify locally.** One iteration, with a reflection on 3 qubits instead of every qubit.
 4. **Verify.** The click is measured, so a failed shot shows itself and is dropped.
 
-**The result.** 3 to 5 times fewer two-qubit gates than textbook Grover, and better answers on all five IBM device models we tested. No speedup today, and we say so plainly. The point is the architecture, and where it could matter on future machines.
+**The result.** 3 to 5 times fewer two-qubit gates than textbook Grover, and better answers on all five IBM device models we tested. It held up on real IBM chips: on ibm_kingston, 87% against 59%, with 40 gates against 213. No speedup today, and we say so plainly. The point is the architecture, and where it could matter on future machines.
 
 ## Who presents what
 
@@ -34,15 +34,15 @@ This is a suggestion, so swap it around. Everyone speaking helps: the rubric ask
 | time | slides | suggested speaker |
 |---|---|---|
 | 0:00 | 1-4: the problem, the model, the wall | Nicholas |
-| 2:25 | 5-6: Grover in one minute, why it won't bolt on | Dan |
-| 3:55 | 7-8: purify, and it works | Nicholas |
-| 5:25 | 9-12: the resilient architecture and its results | Nicholas |
-| 8:35 | 13: the physics fingerprint | Nicholas or Tim |
-| 9:25 | 14-15: keyword search and the demo | Tim |
-| 10:50 | 16-17: hardware and honest limits | fourth teammate |
-| 12:15 | 18-19: potential, what we learned | fourth teammate, then all |
+| 2:36 | 5-6: Grover in one minute, why it won't bolt on | Dan |
+| 4:04 | 7-8: purify, and it works | Nicholas |
+| 5:34 | 9-12: the resilient architecture and its results | Nicholas |
+| 8:45 | 13: the physics fingerprint | Nicholas or Tim |
+| 9:44 | 14-15: keyword search and the demo | Tim |
+| 11:17 | 16-18: real chips, what they taught us, honest limits | fourth teammate |
+| 14:00 | 19-20: potential, what we learned | fourth teammate, then all |
 
-The speaker notes on each slide are written to be read aloud. They add up to about 13.5 minutes at a relaxed pace of 140 words a minute, which leaves room under the 15-minute limit. If you run long, cut slide 15 down to the raster clip, or skip the search demo.
+The speaker notes on each slide are written to be read aloud. They add up to about 15.5 minutes at a relaxed 140 words a minute, or about 14.5 at a natural 150. The limit is 15, so keep a brisk pace and time one run-through. If you run long, cut slide 15 down to the raster clip, or skip the search demo.
 
 ## Recording the video
 
@@ -83,6 +83,27 @@ You don't need it precisely. Steering is forgiving: anything from p' = 0.18 to 0
 **What about noise, really?**
 It's the central problem, and we made it a design constraint. Noise floors can fool you: "any click" at 3 steps scores 87.5% from pure noise, so we report the conditional distribution and hidden-state fidelity too. For very rare events, plain sampling on a noisy device reads about 3 times too high, because false clicks swamp true ones.
 
+**Did this really run on hardware?**
+Yes. Seven jobs on two 156-qubit IBM Heron chips, ibm_kingston and ibm_marrakesh, on 5 November: 337 seconds of device time on the free plan. No circuit used more than 11 qubits. The job IDs are in section 13 of the report, and the predictions were committed before the first job.
+
+**Which QRSM is this?**
+The constrained hybrid, in emitter form: coherent memory, and a fresh ancilla that swaps partly with it and is reset. It isn't the trainable or free-unitary hybrid. Purifying defers the resets, so the circuit Grover runs on is fully coherent.
+
+**Why was the chip worse than its noise model?**
+The model has gate errors, relaxation during gates and readout errors. It has no crosstalk and no decay on idle qubits. Fidelity fell about 3 times faster per gate than in the model. It still ranked the circuits well, with a rank correlation of 0.95, so it's good for comparing builds and optimistic about how they'll do.
+
+**Did error suppression help?**
+Barely. Two identical plain jobs differ, circuit by circuit, about as much as a suppressed job differs from plain, so we don't claim much. Median fidelity on deep circuits rose from 0.50 to 0.53 to 0.55. Textbook Grover at its best reached 0.63. The resilient build got 0.87 with no suppression at all. Cutting gates mattered more.
+
+**Why did dynamical decoupling erase the fingerprint?**
+We don't know, and we got it wrong: we predicted twirling was the cause. One untested idea is that fresh light qubits wait in |0>, where idling does them no harm, while DD keeps pulsing them.
+
+**What went wrong on Marrakesh?**
+The compiler chose the qubits with the best reported errors, and they did far worse than the others we used: 1.5% to 3.4% per gate in our echoes, against about 0.2% reported. We don't know why. Moving off those five qubits recovered the result.
+
+**Isn't avoiding those qubits cherry-picking?**
+It's post-hoc, and we label it so. We picked them from the echo circuits, not from the answers we wanted, and logged the prediction first. The bad run stays in every table.
+
 **Why do you need a fresh qubit for every step?**
 Reversibility needs the history kept somewhere. That costs T extra qubits. A dynamic circuit with reset needs only one light, but it can't be rewound. It's a real trade: qubits for invertibility.
 
@@ -90,7 +111,7 @@ Reversibility needs the history kept somewhere. That costs T extra qubits. A dyn
 The recurrent structure is what the design uses. The memory is a bottleneck, so a reflection can watch only that and the question's light. The physics-shaped click operator is what makes steering exact. A free-unitary model has neither, and at about 136 two-qubit gates a step it would be far too deep.
 
 **What would you do next?**
-Run more on real hardware, extend steering to learned models, add error detection, and rewind only as far as the memory reaches.
+Run bigger cases on real hardware, echo-check layouts before trusting them, extend steering to learned models, add error detection, and rewind only as far as the memory reaches.
 
 ## Running on real IBM hardware
 
@@ -101,7 +122,7 @@ Run more on real hardware, extend steering to learned models, add error detectio
 5. `python experiments/run_ibm.py --fetch` waits and saves the results. IBM's queue can take minutes or hours.
 6. `python experiments/analyse_hardware.py`, then `python experiments/make_figures.py`, make the tables and the charts.
 
-Then update the hardware slide with the real numbers and job IDs. Real hardware is worth up to 8 bonus points, and showing the job IDs matters.
+We've done this. The results and all seven job IDs are in section 13 of the report, and the raw counts are in `results/hardware/`. Real hardware is worth up to 8 bonus points, so have a job ID ready if a judge asks.
 
 ## Glossary
 

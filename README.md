@@ -33,12 +33,13 @@ So we built this in four moves:
 | **Grover conditions exactly** | real Qiskit circuits follow theory within 8 × 10^-15, and conditional distributions and hidden states stay exact |
 | **The wall falls** | one real 64-step record: 27,495,891 runs, 6,240 steered, 125 calls with Grover on top. Steering gives about 4,400 times of that, Grover about 50 |
 | **Resilient beats textbook under noise** | on five IBM device snapshots: 3 to 5 times fewer two-qubit gates, a chance of the event of 0.88 against 0.71, and distribution error 0.12 against 0.21 |
+| **It held up on real IBM chips** | on ibm_kingston, steer + local hit a rare event 0.87 of the time on 40 two-qubit gates, against 0.59 for textbook Grover on 213, and won all 20 comparisons across five jobs. [Details](#real-hardware) |
 | **It answers a physics question** | what follows a rare click tells a hidden defect from none. At 4,096 noisy shots the separation goes from 2.4 to 7.1 standard errors |
 | **A QRSM can be the oracle too** | a reader QRSM found the right table for 19 of 20 vague requests. There is no speedup: 1,024 entries take 32,800 gates against a 1,024-step scan |
 
 ![The resilient build against textbook Grover](results/figures/fig_resilience.png)
 
-**What we don't claim.** There is no speedup today: at this size an exact classical sampler gives a sample in about a millisecond. Everything here is simulation, including the IBM noise models (see [Real hardware](#real-hardware)). We rewind a *model* of a chip, never a chip: a physical defect can't be run backwards. Steering is classical importance sampling. The local reflection is an approximation that drifts on long records. Amplified rejection sampling is a known idea ([Low, Yoder & Chuang 2014](https://doi.org/10.1103/PhysRevA.89.062315)): what's ours is the mapping onto hidden quantum models, and the resilience work.
+**What we don't claim.** There is no speedup today: at this size an exact classical sampler gives a sample in about a millisecond. Most results here are simulation, including the IBM noise models, and the [real-chip runs](#real-hardware) are small: at most 11 qubits and 5 steps. We rewind a *model* of a chip, never a chip: a physical defect can't be run backwards. Steering is classical importance sampling. The local reflection is an approximation that drifts on long records. Amplified rejection sampling is a known idea ([Low, Yoder & Chuang 2014](https://doi.org/10.1103/PhysRevA.89.062315)): what's ours is the mapping onto hidden quantum models, and the resilience work.
 
 **Why it could still matter.** The classical sampler's cost grew about 6 times per hidden qubit in our tests. IBM's [published 2029 target](https://www.ibm.com/quantum-computing/roadmap), 200 logical qubits and 100 million gates, would by our rough estimate fit a QRSM with 50 hidden qubits and a 150-step record, whose memory alone would take about 18 petabytes classically. That's an estimate, not a result.
 
@@ -51,7 +52,7 @@ Python 3.10 or later. No account needed.
 ```bash
 pip install -r requirements.txt
 python demo/demo.py          # the one-minute demo: real circuits on Aer
-pytest                       # 110 tests
+pytest                       # 114 tests
 ```
 
 - **[notebooks/walkthrough.ipynb](notebooks/walkthrough.ipynb)** walks through the idea in a dozen cells, with outputs saved.
@@ -81,14 +82,25 @@ circuit = hardware_amplified(A, oracle, r=1, reflect_on=reflection_qubits(machin
 
 ## Real hardware
 
-**Status: built and rehearsed, not yet run on a real device.** The job is 39 circuits, from textbook Grover to the resilient build, with readout calibration and echo circuits that measure the noise directly. It runs twice, plain and with dynamical decoupling and Pauli twirling. The same code path has run end to end on a local device snapshot.
+**It ran on real IBM chips.** On 5 November 2026 we ran the 39 circuits on ibm_kingston and ibm_marrakesh, two 156-qubit Heron chips: seven jobs, 337 seconds of device time on the free plan, and at most 11 qubits per circuit. Our predictions went into git before the first job, and scored 12 held, 3 partly, 1 missed.
+
+![The chance of a rare event on ibm_kingston, build by build, against the noise model and the noiseless answer](results/figures/fig_hw_builds.png)
+
+- **Fewer gates won.** On Kingston, steer + local won 20 of 20 comparisons across five jobs. At T = 3 it hit the event 0.87 of the time on 40 two-qubit gates, against 0.59 for textbook Grover on 213, with a distribution error of 0.06 against 0.26. A repeat gave 0.88 and 0.55.
+- **Depth costs more than the noise model says,** about 3 times more per gate. So the lead came out about twice what simulation predicted.
+- **Suppression did little.** Textbook Grover at its best, with DD, reached 0.63. Steer + local got more with none.
+- **The after-click fingerprint came through,** at 5.7 and 6.8 standard errors on Kingston and 6.6 on Marrakesh, where plain sampling never passed 2. It's fragile: DD erased it, which we got wrong in advance.
+- **Calibration hid a bad patch.** On Marrakesh, the qubits that looked best did far worse than the others we used. Our echo circuits caught it, and moving off them recovered the result. That job is a post-hoc test, and we label it so.
+
+Job IDs, every table and the noise analysis are in [section 13 of the report](docs/REPORT.md#13-real-hardware). The raw counts and the exact compiled circuits are in [`results/hardware/`](results/hardware/).
 
 To run it on your own IBM Quantum account:
 
 ```bash
 python tools/save_ibm_account.py          # your key goes in at a hidden prompt, and stays in ~/.qiskit
 python experiments/run_ibm.py --plan      # compiles everything and estimates QPU time; uses none
-python experiments/run_ibm.py --submit    # about 1 minute of QPU time per job, by our estimate
+python experiments/run_ibm.py --predict   # simulates those exact circuits with the device's noise model; uses none
+python experiments/run_ibm.py --submit    # sends both jobs
 python experiments/run_ibm.py --fetch
 python experiments/analyse_hardware.py
 python experiments/make_figures.py
@@ -108,7 +120,7 @@ qrsm_grover/        the package
   hardware.py         the hardware job, compiling and readout correction
 experiments/        one script per experiment, each writing to results/
 results/            every result, numbers.json with the headline figures, and the charts
-tests/              110 tests, with pass marks that follow from theory
+tests/              114 tests, with pass marks that follow from theory
 demo/               the one-minute demo and the interactive lab
 notebooks/          a walkthrough, with outputs saved
 docs/               the report, the one-pager, the team guide and the design log

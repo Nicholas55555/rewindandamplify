@@ -30,12 +30,14 @@ Grover is also fragile, because noise punishes deep circuits. So we made the mac
 - **It works exactly.** On real Qiskit circuits with no noise, Grover’s curve matched theory to 14 decimal places, and the conditional answers were exactly right.
 - **The cost falls dramatically.** Conditioning on a real 64-step record went from 27 million runs, to 6,240 with steering, to 125 with Grover on top. Most of that gain comes from steering, which is a classical trick. Grover adds about 50 times on top.
 - **The resilient build beat textbook Grover on noise.** Across five IBM device models it used **3 to 5 times fewer** two-qubit gates, and gave better answers.
-- **It can answer a real physics question:** what happens right after a rare click? With no defect, a click wipes the machine clean. A hidden defect remembers across the click, and that shows up as a fingerprint.
+- **It held up on real IBM chips.** On ibm_kingston, the resilient build hit a rare event **87%** of the time with 40 two-qubit gates. Textbook Grover managed **59%** with 213. Across five jobs it won all 20 comparisons. The chip punished long circuits about 3 times harder per gate than its own noise model said.
+- **It can answer a real physics question:** what happens right after a rare click? With no defect, a click wipes the machine clean. A hidden defect remembers across the click, and that shows up as a fingerprint. On real chips it came through at about 6 standard errors, where plain sampling never passed 2.
+- **The chips taught us something simulation couldn't.** On our second chip, the qubits that looked best in the calibration data did far worse than the others we used. Our noise checks caught it, and moving off them recovered the result. That's the problem this project starts from: trouble that only shows up in the clicks.
 - **A teammate's idea became the other half of the design.** A QRSM can also read a vague request word by word and mark the matching entries. It found the right table for 19 of 20 vague requests.
 
 ## What we don't claim
 
-**There is no speedup today.** At this size an ordinary computer gets an exact answer in about a millisecond. Our hardware job is built and rehearsed, and everything here so far is simulation, including the IBM noise models. Amplifying a rare event like this was published in 2014. We rewind a model of a chip, never a real chip. The keyword search has no speed advantage at all.
+**There is no speedup today.** At this size an ordinary computer gets an exact answer in about a millisecond. Our real-chip runs are small, at most 11 qubits and 5 steps, and the rest of the results are simulation, including the IBM noise models. Amplifying a rare event like this was published in 2014. We rewind a model of a chip, never a real chip. The keyword search has no speed advantage at all.
 
 ## Why it could still matter
 
