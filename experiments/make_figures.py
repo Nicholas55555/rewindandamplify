@@ -322,7 +322,7 @@ def fig_future() -> None:
 def fig_fingerprint() -> None:
     data = load("e5_inside_loop", "noiseless.json")
     curves = data["curves"]
-    fig, ax = plt.subplots(figsize=(10, 5.6))
+    fig, ax = plt.subplots(figsize=(8.4, 6.2))
     tau = np.arange(1, 11)
     for name, colour, label in (("one defect", ORANGE, "hidden defect"), ("no defect", BLUE, "no defect")):
         c = curves[name]["6"]

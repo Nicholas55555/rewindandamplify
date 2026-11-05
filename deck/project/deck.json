@@ -11,8 +11,10 @@
     "cover",
     "problem",
     "qrsm",
+    "qrsmcircuit",
     "wall",
     "grover",
+    "grovercircuit",
     "rewind",
     "purify",
     "exact",
@@ -27,7 +29,8 @@
     "noise",
     "limits",
     "future",
-    "team"
+    "team",
+    "variants"
   ],
   "sections": {
     "s1": {
