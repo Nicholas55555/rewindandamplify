@@ -22,3 +22,4 @@ Thumbs.db
 
 # rendered output: rebuild with tools/render_deck.py
 deck/render/
+deck/*.mp4
