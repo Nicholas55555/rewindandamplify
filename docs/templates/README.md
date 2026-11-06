@@ -149,9 +149,9 @@ Disclosed, as the event's rules allow.
 ## Team
 
 - **Nicholas Taylor**: QRSM research, the Grover fusion, experiments
-- **Tim Yudintsev**: research, and the keyword search idea
+- **Timofey Yudintsev**: research, and the keyword search idea
 - **Dan Izquierdo**: experimentation
-- **Dillion**: formatting and revising
+- **Dillon Satria Sitepu**: formatting and revising
 
 ## References
 

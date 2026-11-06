@@ -118,7 +118,7 @@ def suite(quick: bool = False) -> list[Experiment]:
                                                                   "reflection": kind, "r": r, "steer": st,
                                                                   "width": body.num_qubits}))
 
-    # 6. Tim's keyword search, on 8 catalogue entries
+    # 6. Timofey's keyword search, on 8 catalogue entries
     for r in (0, 1, 2):
         out.append(Experiment(f"catalog-r{r}", measured(catalog_circuit(demo_catalog(8), request, r)),
                               {"kind": "catalog", "N": 8, "query": request, "r": r}))

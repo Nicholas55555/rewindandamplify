@@ -195,7 +195,7 @@ Both estimates are biased upward by false clicks, the amplified one less so. At 
 
 ## 11. The other slot: a reader QRSM as the oracle (E6)
 
-Amplitude amplification has two slots: what to search over, and what counts as a match. So far a QRSM has filled the first. Tim's idea, retrieving data from a vague human search, fills the second.
+Amplitude amplification has two slots: what to search over, and what counts as a match. So far a QRSM has filled the first. Timofey's idea, retrieving data from a vague human search, fills the second.
 
 1. **Classical.** A vague request becomes catalogue keywords, by stop words and a synonym table. A real system would use an embedding model here.
 2. **Reader QRSM.** The index register holds every entry at once. Each token applies one diagonal step, which turns the phase of each entry containing it. This is the phase-layer QRSM from our circuit notes. It can't reset, and doesn't need to.

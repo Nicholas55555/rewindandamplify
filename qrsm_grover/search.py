@@ -1,6 +1,6 @@
 """The reader in the oracle slot: find a table in an unsorted catalogue from a vague request.
 
-This is Tim's idea from the team chat: "a system that lets you retrieve data from a vague human search". Classical code
+This is Timofey's idea from the team chat: "a system that lets you retrieve data from a vague human search". Classical code
 does what classical code is good at, and a coherent QRSM does the marking:
 
     1. classical      a vague request is tokenised into catalogue keywords, by stop words and a synonym table

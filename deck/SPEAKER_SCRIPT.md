@@ -72,11 +72,11 @@ So what can you do with this? Here’s a real physics question: what happens rig
 
 ## 18. The other slot: a QRSM as the oracle  (12:56)
 
-Tim’s idea fits the other half of the architecture. Grover has two slots: what to search over, and what counts as a match. So far a QRSM has filled the first. Here a reader QRSM fills the second. It reads a vague request one token at a time, and each token turns the phase of every table that contains it. A full match gets a normal Grover mark, and a partial match gets a partial boost, which is what makes a vague search possible. It found the right table for 19 of 20 requests, and on a real chip, 8 entries gave the right one about 85 percent of the time. The honest part: the oracle is compiled from the catalogue, so this shows the architecture, not a speedup.
+Timofey’s idea fits the other half of the architecture. Grover has two slots: what to search over, and what counts as a match. So far a QRSM has filled the first. Here a reader QRSM fills the second. It reads a vague request one token at a time, and each token turns the phase of every table that contains it. A full match gets a normal Grover mark, and a partial match gets a partial boost, which is what makes a vague search possible. It found the right table for 19 of 20 requests, and on a real chip, 8 entries gave the right one about 85 percent of the time. The honest part: the oracle is compiled from the catalogue, so this shows the architecture, not a speedup.
 
 ## 19. Demo: real circuits, about a minute, no account needed  (13:53)
 
-Here’s all of that running: one script, real Qiskit circuits, about a minute, no account needed. First, a rare click: plain sampling gets 8 percent usable shots, and steering plus one Grover iteration gets all of them. Second, what follows the click: the amplified answers match the exact filter, with and without a defect. Third, Tim’s search lands on the right table. The repository also has an interactive lab, where you can watch runs change as you switch builds.
+Here’s all of that running: one script, real Qiskit circuits, about a minute, no account needed. First, a rare click: plain sampling gets 8 percent usable shots, and steering plus one Grover iteration gets all of them. Second, what follows the click: the amplified answers match the exact filter, with and without a defect. Third, Timofey’s search lands on the right table. The repository also has an interactive lab, where you can watch runs change as you switch builds.
 
 ## 20. On a real IBM chip, fewer gates won  (14:29)
 

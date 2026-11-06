@@ -84,7 +84,7 @@ Because the idea came from these FakeMarrakesh pilots, the test below uses other
 - Noiseless: exact against the filter within 1e-9, with post-selection on the verifiable bit.
 - Noisy: at equal shots (4,096), the amplified estimate of P(click at t + tau | click at t) has lower total error than the plain-sampling one for most tau (65%). Over a large shot budget plain sampling should win, because it has lower bias.
 
-**E6, the reader oracle: keyword search** (`e6_catalog.py`). Tim's idea: find a table in an unsorted catalogue from a vague request. Classical tokenising first, then a phase-layer QRSM reads the query one token at a time and Grover amplifies.
+**E6, the reader oracle: keyword search** (`e6_catalog.py`). Timofey's idea: find a table in an unsorted catalogue from a vague request. Classical tokenising first, then a phase-layer QRSM reads the query one token at a time and Grover amplifies.
 - Soft phases rank partial matches, not only exact ones. Expected top-1 agreement with the classical score on clear queries (80%).
 - Oracle cost is reported apart from the search. Honest expectation: the oracle is compiled from the catalogue, so classical code has already read every entry, and there is no real speedup.
 

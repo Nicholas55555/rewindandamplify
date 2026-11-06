@@ -37,10 +37,10 @@ This is a suggestion, so swap it around. Everyone speaking helps: the rubric ask
 | 4:10 | 6-8: Grover in one minute, its circuit, why it won't bolt on | Dan |
 | 6:16 | 9-10: purify, it works, and why partly coherent and partly reversible | Nicholas |
 | 8:46 | 11-14: the resilient architecture and its results | Nicholas |
-| 11:57 | 15: the physics fingerprint | Nicholas or Tim |
-| 12:56 | 16-17: keyword search and the demo | Tim |
-| 14:29 | 18-20: real chips, what they taught us, honest limits | Dillion |
-| 17:13 | 21-22: potential, what we learned | Dillion, then all |
+| 11:57 | 15: the physics fingerprint | Nicholas or Timofey |
+| 12:56 | 16-17: keyword search and the demo | Timofey |
+| 14:29 | 18-20: real chips, what they taught us, honest limits | Dillon |
+| 17:13 | 21-22: potential, what we learned | Dillon, then all |
 
 The real-world problems slide comes straight after slide 2, and the partly coherent slide straight after slide 10. Neither has a page number, so the other slides keep theirs. Slide 23 is a backup for questions: the QRSM family, and where ours sits. It isn't part of the talk.
 
