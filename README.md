@@ -6,7 +6,7 @@ FGCU Quantum Hackathon, IBM Qiskit Fall Fest, November 2026.
 
 [![tests](https://github.com/Nicholas55555/rewindandamplify/actions/workflows/tests.yml/badge.svg)](https://github.com/Nicholas55555/rewindandamplify/actions/workflows/tests.yml)
 
-**[Slides](deck/Rewind_and_Amplify_deck.pdf) · [Report](docs/REPORT.md) · [One page](docs/ONE_PAGER.md) · [Notebook](notebooks/walkthrough.ipynb) · [Team guide](docs/TEAM_GUIDE.md)**
+**[Slides](deck/Rewind_and_Amplify_deck.pdf) · [Report](docs/REPORT.md) · [One page](docs/ONE_PAGER.md) · [Notebook](notebooks/walkthrough.ipynb) · [Team guide](docs/TEAM_GUIDE.md) · [Lab demo video](demo/Rewind_and_Amplify_lab_demo.mp4)**
 
 ![48 runs of the machine as the build changes: the rare click column fills in](results/figures/raster.gif)
 
