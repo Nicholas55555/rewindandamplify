@@ -33,18 +33,18 @@ This is a suggestion, so swap it around. Everyone speaking helps: the rubric ask
 
 | time | slides | suggested speaker |
 |---|---|---|
-| 0:00 | 1-5: the problem, the model and its circuit, the wall | Nicholas |
-| 3:11 | 6-8: Grover in one minute, its circuit, why it won't bolt on | Dan |
-| 5:17 | 9-10: purify, and it works | Nicholas |
-| 6:47 | 11-14: the resilient architecture and its results | Nicholas |
-| 9:58 | 15: the physics fingerprint | Nicholas or Tim |
-| 10:57 | 16-17: keyword search and the demo | Tim |
-| 12:30 | 18-20: real chips, what they taught us, honest limits | fourth teammate |
-| 15:13 | 21-22: potential, what we learned | fourth teammate, then all |
+| 0:00 | 1-5: the problem, the real-world problems, the model and its circuit, the wall | Nicholas |
+| 4:10 | 6-8: Grover in one minute, its circuit, why it won't bolt on | Dan |
+| 6:16 | 9-10: purify, and it works | Nicholas |
+| 7:46 | 11-14: the resilient architecture and its results | Nicholas |
+| 10:57 | 15: the physics fingerprint | Nicholas or Tim |
+| 11:56 | 16-17: keyword search and the demo | Tim |
+| 13:29 | 18-20: real chips, what they taught us, honest limits | fourth teammate |
+| 16:12 | 21-22: potential, what we learned | fourth teammate, then all |
 
-Slide 23 is a backup for questions: the QRSM family, and where ours sits. It isn't part of the talk.
+The real-world problems slide comes straight after slide 2 and has no page number, so the other slides keep theirs. Slide 23 is a backup for questions: the QRSM family, and where ours sits. It isn't part of the talk.
 
-The speaker notes on each slide are written to be read aloud. They add up to about 16.7 minutes at a relaxed 140 words a minute, or about 15.7 at a natural 150, and the submission limit is 15. So time one run-through. The easiest cuts: slide 17 down to the raster clip, the search on slide 16, and the second half of the notes on slide 12.
+The speaker notes on each slide are written to be read aloud. They add up to about 17.7 minutes at a relaxed 140 words a minute, or about 16.5 at a natural 150, and the submission limit is 15. So time one run-through. The easiest cuts: slide 17 down to the raster clip, the search on slide 16, and the second half of the notes on slide 12.
 
 ## Recording the video
 
@@ -84,6 +84,12 @@ You don't need it precisely. Steering is forgiving: anything from p' = 0.18 to 0
 
 **What about noise, really?**
 It's the central problem, and we made it a design constraint. Noise floors can fool you: "any click" at 3 steps scores 87.5% from pure noise, so we report the conditional distribution and hidden-state fidelity too. For very rare events, plain sampling on a noisy device reads about 3 times too high, because false clicks swamp true ones.
+
+**Has this found a real defect on a real chip?**
+No, and we say so on the slide. We've found defects in simulated click records, and we've run the circuits on two real chips. The next step is to read a real chip's clicks and check the answer against a direct measurement of its defects. The nearest thing so far is our echo circuits, which caught a bad patch of qubits on Marrakesh, but that doesn't tell us what was wrong with them.
+
+**Who would actually use this?**
+People who build and calibrate quantum chips, teams designing error correction around bad qubits, and anyone paying for device time to study rare events. The same click-correlation signals are used on single-photon sources. All of that is potential, not a product: today's version runs small cases, and a classical sampler still wins at this size.
 
 **Did this really run on hardware?**
 Yes. Seven jobs on two 156-qubit IBM Heron chips, ibm_kingston and ibm_marrakesh, on 5 November: 337 seconds of device time on the free plan. No circuit used more than 11 qubits. The job IDs are in section 13 of the report, and the predictions were committed before the first job.
