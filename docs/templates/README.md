@@ -150,8 +150,8 @@ Disclosed, as the event's rules allow.
 
 - **Nicholas Taylor**: QRSM research, the Grover fusion, experiments
 - **Tim Yudintsev**: research, and the keyword search idea
-- **Dan Izquierdo**: [add your part]
-- **[Fourth teammate]**: [add your part]
+- **Dan Izquierdo**: experimentation
+- **Dillion**: formatting and revising
 
 ## References
 

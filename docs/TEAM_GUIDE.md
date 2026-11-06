@@ -4,8 +4,8 @@ Everything you need to record the video and answer questions, in one place. You 
 
 ## Before 8:00 a.m. ET on Friday 6 November
 
-- [ ] Add the team's names: cover slide, last slide, and the Team section of the README.
-- [ ] Each person fills in their own part on the last slide.
+- [x] Add the team's names: cover slide, last slide, and the Team section of the README.
+- [x] Each person's part is on the last slide.
 - [x] Run the hardware job. Done on 5 November: seven jobs on two real IBM chips.
 - [ ] Record the video: 15 minutes or less. Aim for 14. Everyone speaks (section 2).
 - [x] Publish the GitHub repository: https://github.com/Nicholas55555/rewindandamplify. It's on the last slide. Put it in DeepStation too.
@@ -39,8 +39,8 @@ This is a suggestion, so swap it around. Everyone speaking helps: the rubric ask
 | 8:46 | 11-14: the resilient architecture and its results | Nicholas |
 | 11:57 | 15: the physics fingerprint | Nicholas or Tim |
 | 12:56 | 16-17: keyword search and the demo | Tim |
-| 14:29 | 18-20: real chips, what they taught us, honest limits | fourth teammate |
-| 17:13 | 21-22: potential, what we learned | fourth teammate, then all |
+| 14:29 | 18-20: real chips, what they taught us, honest limits | Dillion |
+| 17:13 | 21-22: potential, what we learned | Dillion, then all |
 
 The real-world problems slide comes straight after slide 2, and the partly coherent slide straight after slide 10. Neither has a page number, so the other slides keep theirs. Slide 23 is a backup for questions: the QRSM family, and where ours sits. It isn't part of the talk.
 
