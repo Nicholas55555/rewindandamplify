@@ -52,7 +52,7 @@ def speak(text: str, wav: Path, voice: str, rate: int) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--voice", default="Microsoft Zira Desktop")
-    ap.add_argument("--rate", type=int, default=5, help="speech rate, -10 to 10")
+    ap.add_argument("--rate", type=int, default=6, help="speech rate, -10 to 10")
     args = ap.parse_args()
     ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
     work = RENDER / "video"

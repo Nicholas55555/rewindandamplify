@@ -19,6 +19,7 @@
     "rewind",
     "purify",
     "exact",
+    "partial",
     "architecture",
     "steer",
     "local",

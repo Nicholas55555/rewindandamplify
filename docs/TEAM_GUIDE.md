@@ -35,16 +35,16 @@ This is a suggestion, so swap it around. Everyone speaking helps: the rubric ask
 |---|---|---|
 | 0:00 | 1-5: the problem, the real-world problems, the model and its circuit, the wall | Nicholas |
 | 4:10 | 6-8: Grover in one minute, its circuit, why it won't bolt on | Dan |
-| 6:16 | 9-10: purify, and it works | Nicholas |
-| 7:46 | 11-14: the resilient architecture and its results | Nicholas |
-| 10:57 | 15: the physics fingerprint | Nicholas or Tim |
-| 11:56 | 16-17: keyword search and the demo | Tim |
-| 13:29 | 18-20: real chips, what they taught us, honest limits | fourth teammate |
-| 16:12 | 21-22: potential, what we learned | fourth teammate, then all |
+| 6:16 | 9-10: purify, it works, and why partly coherent and partly reversible | Nicholas |
+| 8:46 | 11-14: the resilient architecture and its results | Nicholas |
+| 11:57 | 15: the physics fingerprint | Nicholas or Tim |
+| 12:56 | 16-17: keyword search and the demo | Tim |
+| 14:29 | 18-20: real chips, what they taught us, honest limits | fourth teammate |
+| 17:13 | 21-22: potential, what we learned | fourth teammate, then all |
 
-The real-world problems slide comes straight after slide 2 and has no page number, so the other slides keep theirs. Slide 23 is a backup for questions: the QRSM family, and where ours sits. It isn't part of the talk.
+The real-world problems slide comes straight after slide 2, and the partly coherent slide straight after slide 10. Neither has a page number, so the other slides keep theirs. Slide 23 is a backup for questions: the QRSM family, and where ours sits. It isn't part of the talk.
 
-The speaker notes on each slide are written to be read aloud. They add up to about 17.7 minutes at a relaxed 140 words a minute, or about 16.5 at a natural 150, and the submission limit is 15. So time one run-through. The easiest cuts: slide 17 down to the raster clip, the search on slide 16, and the second half of the notes on slide 12.
+The speaker notes on each slide are written to be read aloud. They add up to about 18.7 minutes at a relaxed 140 words a minute, or about 17.5 at a natural 150, and the submission limit is 15. So time one run-through. The easiest cuts: slide 17 down to the raster clip, the search on slide 16, and the second half of the notes on slide 12.
 
 ## Recording the video
 
@@ -52,7 +52,7 @@ The speaker notes on each slide are written to be read aloud. They add up to abo
 
 **For the demo slide,** either record your screen running `python demo/demo.py`, or show `results/figures/raster.mp4` and the interactive lab (`demo/index.html`).
 
-**A fallback:** `tools/make_video.py` makes a complete narrated draft with a computer voice, 14:49 long, leaving out the backup slide. It's useful for checking pace, or if time runs out. Your own voices will score better on communication.
+**A fallback:** `tools/make_video.py` makes a complete narrated draft with a computer voice, 14:27 long, leaving out the backup slide. It's useful for checking pace, or if time runs out. Your own voices will score better on communication.
 
 **Submitting:** check the Submission tab on DeepStation, after signing in, to see whether it wants a file or a link. If it wants a link, an unlisted YouTube video or a Google Drive file set to "anyone with the link" both work. Test the link in a private window.
 
@@ -90,6 +90,12 @@ No, and we say so on the slide. We've found defects in simulated click records, 
 
 **Who would actually use this?**
 People who build and calibrate quantum chips, teams designing error correction around bad qubits, and anyone paying for device time to study rare events. The same click-correlation signals are used on single-photon sources. All of that is potential, not a product: today's version runs small cases, and a classical sampler still wins at this size.
+
+**Why not make the machine fully coherent?**
+Because then it can't forget. On the task "does this sequence end with A", a fully coherent machine scored 51%, which is chance, and the hybrid scored 100%. Forgetting is what lets a recurrent model track the recent past. Purifying doesn't change that: it runs the same hybrid inside a bigger reversible circuit, and the click statistics stay the same.
+
+**What does partly reversible mean?**
+There are three options. Read and reset, which is cheap and can't be undone. Purify, which rewinds everything for one extra qubit per step. Or rewind only the recent past, which is enough when the machine forgets: 8 steps held a hit rate of 0.80 to 0.87 out to 18. That last one was tested without noise, and it distorts history older than its horizon.
 
 **Did this really run on hardware?**
 Yes. Seven jobs on two 156-qubit IBM Heron chips, ibm_kingston and ibm_marrakesh, on 5 November: 337 seconds of device time on the free plan. No circuit used more than 11 qubits. The job IDs are in section 13 of the report, and the predictions were committed before the first job.
